@@ -1,0 +1,381 @@
+Name,Unit,Short_Name,Decimal_Places
+None,none,_none_,0
+Temperature,C,_TempC,2
+Temperature,F,_TempF,2
+Temperature,K,_TempK,0
+Conductivity,mS/cm,_CmS/cm,3
+Conductivity,uS/cm,_CuS/cm,1
+Specific_Cond,mS/cm,_sCmS/cm,3
+Specific_Cond,uS/cm,_sCuS/cm,1
+Resistivity,KOhm.cm,_RKOcm,2
+Resistivity,MOhm.cm,_RMOcm,3
+TDS,g/L,_TDSgL,3
+TDS_coeff,TDScoef,_TDSCoef,3
+Salinity,PPT,_SalPPT,2
+Salinity,ppt,_SalPPT,2
+DO,%,_DO%,1
+DO,mg/L,_DOmg,2
+DO,uMol/L,_DOuMol,2
+pH,mV,_pHmV,1
+pH,pH,_pH,2
+ORP,mV,_ORPmV,0
+Pressure-Abs,psia,_Prespsia,2
+Pressure-Gau,psig,_Prespsig,2
+Depth,meters,_Depm,3
+Depth,ft,_Depft,3
+Barometer,psi,_BPpsi,3
+Barometer,Atm,_BPatm,3
+Barometer,mmHg,_BPmmHg,1
+Barometer,in.Hg,_BPinHg,2
+Battery,volts,_BattV,1
+Voltage,volts,_VoltV,3
+Current,mAmps,_CurrentmA,2
+Density,g/cm3,_DensG/cm3,2
+Density,Kg/m3,_DensKg/m3,2
+Density,lb/ft3,_DensLb/ft3,2
+Current_Speed,cm/sec,_CurSpCm/s,2
+Current_Speed,knots,_CurSpKnot,2
+Current_Dir,degrees,_CurDirDeg,1
+Turbidity,NTU,_TurNTU,2
+Rainfall,cm,_Raincm,4
+Rainfall,inches,_Rainin,4
+Solar_Rad,c/cm2/m,_Solar,3
+Refract_Index,N,_RefIdxN,2
+Rel.Humidity,%,_RH%,1
+Displacement,meters,_DispM,2
+Displacement,ft,_DispFt,2
+Tilt,degrees,_TiltDeg,2
+Frequency,Hertz,_FreqHz,0
+Ammonia, mg N/L,_NH3mg/L,2
+Ammonium, mg N/L,_NH4+mg/L,2
+ISE, mV,_ISEmV,1
+Voltage, mV,_VoltmV,2
+Date, ddmmyy,_DateDMY,0
+Date, mmddyy,_DateMDY,0
+Date, yymmdd,_DateYMD,0
+Time, hhmmss,_TimeHMS,0
+Logic_Level, Logic,_Logic,0
+Air_Temp, C,_ATempC,2
+Air_Temp, F,_ATempF,2
+Soil_Temp, C,_STempC,2
+Soil_Temp, F,_STempF,2
+Elec_Temp, C,_ETempC,2
+Elec_Temp, F,_ETempF,2
+Heave,meters,_HeaveM,2
+Heave, ft,_HeaveFt,2
+Height,meters,_HeightM,2
+Height, ft,_HeightFt,2
+Distance,meters,_DistM,2
+Distance,ft,_DistFt,2
+Soil_Moisture,%,_SMoist%,2
+Pitch, degrees,_PitchDeg,1
+Roll, degrees,_RollDeg,1
+Slope, degrees,_SlopeDeg,2
+Slope_East, degrees,_SlopeEDeg,2
+Slope_North, degrees,_SlopeNDeg,2
+Slope_X, degrees,_SlopeXDeg,2
+Slope_Y, degrees,_SlopeYDeg,2
+Tilt_East, degrees,_TiltEDeg,2
+Tilt_North, degrees,_TiltNDeg,2
+Tilt_X, degrees,_TiltXDeg,2
+Tilt_Y, degrees,_TiltYDeg,2
+Barometer, mBar,_BPmBar,1
+Wind_Dir, degrees,_WDirD,0
+Wind_Speed, knots,_WSpKnot,1
+Wind_Speed, m/sec,_WSm/s,1
+Wind_Speed, mph,_WSmph,1
+Fluorescence, ug/L,_FlourUg/L,5
+Free_Space, bytes,_FreeSb,0
+Free_Space, KBytes,_FreeSKb,0
+Error_Code, Error,_ECode,0
+Verify, Verify,_Verify,0
+Generic, Gen,_Generic,2
+User, User,_User,2
+Barometer, kPa,_BPkPa,2
+Wind_Speed, km/h,_WSkm/h,1
+Resistivity, Ohm.cm,_ROcm,1
+TDS, Kg/L,_TDSKg/L,3
+DO_Charge, DOchrg,_DOchrg,0
+Chloroform, ppb,_CHLFMppb,1
+Ground, Hertz,_GroundHz,3
+Full_Scale, Hertz,_FScaleHz,3
+PresComp,PresCmp,_PresCmp,5
+Nitrate,mV,_NO3-mV,2
+Pressure,kPaa,_PresKPaa,2
+Pressure,kPag,_PresKPag,2
+Pressure,psir,_PresPsir,2
+Pressure,kPar,_PresKPar,2
+NitrateN,mg/L,_NO3-mg/L,2
+Ammonia,mV,_NH3mV,1
+Ammonium,mV,_NH4+mV,1
+TCE,ppb,_TCEppb,1
+TDS,mg/L,_TDSmg/L,1
+Pressure,psi,_PresPsi,2
+Chloride,mg/L,_Cl-mg/L,2
+Chlorophyll,mg/L,_CHLmg/L,1
+Calcium,mg/L,_CalcMg/L,1
+Sulfide,mg/L,_SulfMg/L,1
+Bottle,Bot,_Bottle,0
+Site,Sam,_Site,0
+Flow,ft3/s,_FlowFt3/s,3
+Flow,gal/min,_FlowG/min,2
+Flow,Mgal/day,_FlowMg/d,4
+Flow,m3/sec,_FlowM3/s,4
+Flow,L/s,_FlowL/s,3
+Volume,ft3,_VolFt3,1
+Volume,gal,_VolGal,1
+Volume,m3,_VolM3,1
+Volume,L,_VolL,1
+Custom__1,Cust 1,_Cust1,2
+Custom__2,Cust 2,_Cust2,2
+Custom__3,Cust 3,_Cust3,2
+Custom__4,Cust 4,_Cust4,2
+Custom__5,Cust 5,_Cust5,2
+Custom__6,Cust 6,_Cust6,2
+Custom__7,Cust 7,_Cust7,2
+Custom__8,Cust 8,_Cust8,2
+Custom__9,Cust 9,_Cust9,2
+Custom_10,Cust 10,_Cust10,2
+Custom_11,Cust 11,_Cust11,2
+Custom_12,Cust 12,_Cust12,2
+Custom_13,Cust 13,_Cust13,2
+Custom_14,Cust 14,_Cust14,2
+Custom_15,Cust 15,_Cust15,2
+Custom_16,Cust 16,_Cust16,2
+Custom_17,Cust 17,_Cust17,2
+TurbComp,TurbC,_TurbCmp,5
+Chloride_nc,mV,_ClmV,1
+TDG,mmHg,_TDGmmHg,1
+Custom_18,Cust 18,_Cust18,2
+Custom_19,Cust 19,_Cust19,2
+Custom_20,Cust 20,_Cust20,2
+Custom_21,Cust 21,_Cust21,2
+Altitude,meters,_AltM,1
+Altitude,ft,_AltFt,1
+Date,,_Date,0
+Rainfall,mm,_Rainmm,3
+Rain_Rate,cm/hr,_RRcm/h,4
+Rain_Rate,in/hr,_RRin/h,4
+Salinity,ppt,_SalUSGS,2
+Solar_Rad,Lg/min,_SolaLg/m,2
+Solar_Rad,W/m^2,_SolaW/m2,0
+Solar_Rad,KW/m^2,_SolaKW/m2,3
+Barometer,hPa,_BPhPa,1
+H2S,ppm,_H2Sppm,2
+BIT_Alarm,,_BITAlarm,0
+Flow,gal/sec,_FlowG/s,3
+Flow,gal/hour,_FlowG/h,3
+Flow,ft3/min,_FlowCfm,3
+Flow,ft3/hour,_FlowCfh,3
+Flow,ft3/day,_FlowCfd,3
+Flow,m3/min,_FlowCmm,3
+Flow,m3/hour,_FlowCmh,3
+Flow,m3/day,_FlowCmd,3
+Flow,AF/day,_FlowAft/d,3
+Volume,Mgal,_VolMgal,1
+Volume,acre.ft,_VolAft,1
+Latitude,DDMM.mm,_LatDM.m,3
+Longitude,DDMM.mm,_LongDM.m,3
+UTC,hhmmss.ss,_UTChms.s,3
+GPS_Quality,,_GPSQualit,0
+Num_Satellite,,_NumSat,0
+HDOP,%,_HDOP%,1
+Geo_Sep.,m,_GeoSepM,1
+DGPS_Data_Age,sec,_DGPSDAgeS,0
+DGPS_Ref_ID,,_DGPSRefID,0
+SOG,mph,_SOGmph,1
+SOG,km/h,_SOGkm/h,1
+SOG,m/sec,_SOGm/s,1
+SOG,knots,_SOGKnot,1
+COG,degrees,_COGDeg,1
+GPS_Variation,degrees,_GPSVarDeg,1
+TSS,mg/L,_TSSmg/L,1
+TSS,g/L,_TSSg/L,3
+TSS,%,_TSS%,4
+Chlorophyll,ug/L,_Chlug/L,1
+%Fluorescence,%FS,_Fluo%FS,1
+Optic,count,_OpticCnt,0
+Latitude,DDdddd,_LatDDdd,1
+Longitude,DDdddd,_LongDDdd,1
+RTC_Batt,none,_RTCbatt,1
+PCB_Temp,none,_PCBtemp,1
+DO%_Local,%Local,_DO%,1
+PAR1,uMoles,_Par1,1
+PAR2,uMoles,_PAR2,1
+Turbidity+,NTU,_TurbNTU,2
+Rhodamine,ug/L,_RhodUg/L,2
+DO_T1,none,_DOT1,1
+DO_PE1,none,_DOPE1,1
+DO_PE2,none,_DOPE2,1
+Turbidity-,NTU,_TurbNTU,1
+Free_Cl2,mg/L,_Cl2mgl,2
+Cl2_Charge,none,_CL2chrg,3
+DO+,%,_DO%,3
+DO_Conc+,none,_DOconc+,3
+Reserve,,_Resv213,1
+Reserve,,_Resv214,1
+Reserve,,_Resv215,1
+Reserve,,_Resv216,1
+Reserve,,_Resv217,1
+Reserve,,_Resv218,1
+Reserve,,_Resv219,1
+Reserve, , _Resv220,1
+Reserve, , _Resv221,1
+Reserve, , _Resv222,1
+Reserve, , _Resv223,1
+Reserve, , _Resv224,1
+Reserve, , _Resv225,1
+Reserve, , _Resv226,1
+Reserve, , _Resv227,1
+Reserve, , _Resv228,1
+Reserve, , _Resv229,1
+Reserve, , _Resv230,1
+Reserve, , _Resv231,1
+Reserve, , _Resv232,1
+Reserve, , _Resv233,1
+Reserve, , _Resv234,1
+Reserve, , _Resv235,1
+Reserve, , _Resv236,1
+Reserve, , _Resv237,1
+Reserve, , _Resv238,1
+Reserve, , _Resv239,1
+Reserve, , _Resv240,1
+Reserve, , _Resv241,1
+Reserve, , _Resv242,1
+Reserve, , _Resv243,1
+Reserve, , _Resv244,1
+Reserve, , _Resv245,1
+Reserve, , _Resv246,1
+Reserve, , _Resv247,1
+Reserve, , _Resv248,1
+Reserve, , _Resv249,1
+Reserve, , _Resv250,1
+Reserve, , _Resv251,1
+Reserve, , _Resv252,1
+Reserve, , _Resv253,1
+Reserve, , _Resv254,1
+Reserve, , _Resv255,1
+Year,,_Year,0
+Month,,_Month,0
+Date_Only,,_DateOnly,0
+Hour,,_Hour,0
+Minute,,_Minute,0
+Second,,_Second,0
+Vel._East,cm/s,_VEcm/s,1
+Vel._North,cm/s,_VNcm/s,1
+Vel._Up,cm/s,_VUcm/s,1
+Vel._ENU, cm/s, _VENUcm/s,1
+Vel._East_Std,cm/s,_VEStdCm/s,1
+Vel._North_Std,cm/s,_VNStdCm/s,1
+Vel._Up_Std,cm/s,_VUStdCm/s,1
+Signal_Power_E,count,_SigPcntE,0
+Signal_Power_N,count,_SigPcntN,0
+Signal_Power_U,count,_SigPcntU,0
+Vel._X,cm/s,_VXcm/s,1
+Vel._Y,cm/s,_VYcm/s,1
+Vel._Z,cm/s,_VZcm/s,1
+Vel._XYZ, cm/s, _VXYZcm/s,1
+Vel._X_Std,cm/s,_VXStdCm/s,1
+Vel._Y_Std,cm/s,_VYStdCm/s,1
+Vel._Z_Std,cm/s,_VZStdCm/s,1
+Signal_Power_X,count,_SigPcntX,0
+Signal_Power_Y,count,_SigPcntY,0
+Signal_Power_Z,count,_SigPcntZ,0
+Vel._1,cm/s,_V1cm/s,1
+Vel._2,cm/s,_V2cm/s,1
+Vel._3,cm/s,_V3cm/s,1
+Vel._Mag, cm/s, _VMagcm/s,1
+Vel._1_Std,cm/s,_V1StdCm/s,1
+Vel._2_Std,cm/s,_V2StdCm/s,1
+Vel._3_Std,cm/s,_V3StdCm/s,1
+Signal_Power_1,count,_SigPcnt1,0
+Signal_Power_2,count,_SigPcnt2,0
+Signal_Power_3,count,_SigPcnt3,0
+Compass_Heading,degrees,_CpHeadDeg,1
+Raw_Pressure,count,_PresCnt,0
+Raw_Pressure_Std,count,_PresStdCn,0
+Good_Ping,%,_GPing%,0
+Vert_Dist_Start,m,_VDistStaM,1
+Vert_Dist_End,m,_VDistEndM,1
+SoS, m/sec,_SndSpeed,0
+BIT,none,_BIT,0
+bin,none,_bin,0
+DirFlow,mm/sec,_Dirflow,1
+Mag,mm/sec,_Mag,1
+E/W,mm/sec,_EW,1
+N/S,mm/sec,_NS,1
+Vert,mm/sec,_Vert,1
+Err,mm/sec,_Err,1
+Echo1,Count,_Echo1,0
+Echo2,Count,_Echo2,0
+Echo3,Count,_Echo3,0
+Echo4,Count,_Echo4,0
+Sample_Count,,_SampCnt,0
+Echo1,db,_Echo1,0
+Echo2,db,_Echo2,0
+Echo3,db,_Echo3,0
+Echo4,db,_Echo4,0
+CO2_F1, Count, _CO2F1_Ct,0
+CO2_F2, Count, _CO2F2_Ct,0
+CO2_R1, Count, _CO2R1_Ct,0
+CO2_R2, Count,_CO2R2_Ct,0
+Heading_Std, Degree, _HeadStd,1
+Pitch_Std, Degree, _PitchStd,1
+Roll_Std, Degree,_RollStd,1
+CO2_CR,, _CO2CR,2
+PCO2, uAtm, _PCO2_uATM,2
+CO2Temp,C, _CO2Temp_C,1
+Mean_Pressure, dB, _MpresDbar,3
+Mean_Pressure, psi, _MpresPsi,3
+Level, cm, _LevelCm,3
+Level, ft, _LevelFt,3
+Cell_Begin,meters, _CellBm,2
+Cell_Begin,ft, _CellBft,2
+Cell_End,meters, _CellEm,2
+Cell_End,ft, _CellEft,2
+Cell_Size,meters, _CellSzm,2
+Cell_Size,ft, _CellSzft,2
+Blank_Distance,meters, _CellDm,2
+Blank_Distance,ft, _CellDft,2
+Velocity_Mag,cm/s, _vMagCm/s,2
+Velocity_Mag,ft/s, _vMagFt/s,2
+Mean_Sig._Strength, counts, _MsigScnt,0
+Velocity_Vector,cm/s, _vVectCm/s,2
+Velocity_Vector,ft/s, _vVectFt/s,2
+Mean_Std_Dev, cm/s, _MsDcm/s,2
+Mean_Std_Dev, ft/s, _MsDft/s,2
+Sample, none, _none_,0
+Vel._East,ft/s,_VEft/s,1
+Vel._North,ft/s,_VNft/s,1
+Vel._Up,ft/s,_VUft/s,1
+Vel._ENU, ft/s, _VENUft/s,1
+Vel._East_Std,ft/s,_VEStdFt/s,1
+Vel._North_Std,ft/s,_VNStdFt/s,1
+Vel._Up_Std,ft/s,_VUStdFt/s,1
+Vel._X,ft/s,_VXft/s,1
+Vel._Y,ft/s,_VYft/s,1
+Vel._Z,ft/s,_VZft/s,1
+Vel._XYZ, ft/s, _VXYZft/s,1
+Vel._X_Std,ft/s,_VXStdFt/s,1
+Vel._Y_Std,ft/s,_VYStdFt/s,1
+Vel._Z_Std,ft/s,_VZStdFt/s,1
+Vel._1,ft/s,_V1ft/s,1
+Vel._2,ft/s,_V2ft/s,1
+Vel._3,ft/s,_V3ft/s,1
+Vel._Mag, ft/s, _VMagft/s,1
+Vel._1_Std,ft/s,_V1StdFt/s,1
+Vel._2_Std,ft/s,_V2StdFt/s,1
+Vel._3_Std,ft/s,_V3StdFt/s,1
+NO3-N_Conc, mg/L, _NO3mgL,3
+NO3-N_Conc, uM, _NO3uM,2
+NO3-N_Absorb, none, _none_,4
+PO4-P_Conc, mg/L, _PO4PmgL,3
+PO4-P_Conc, uM, _PO4PuM,2
+PO4-P_Absorb, none, _none_,4
+RainRate, mm/hr, _RRmm/h,3
+TSS, mg/L, _TSS+mg/L,4
+TSS, gperL, _TSS+g/L,4
+TSS, %, _TSS+&,4
+TSS, mg/L, _TSS-mg/L,4
+TSS, gperL, _TSS-g/L,4
+TSS, %, _TSS-&,4
