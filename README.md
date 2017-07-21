@@ -14,16 +14,6 @@ In addition to reading instrument data files sonde3 can help with creating unifo
   - __Original Developer__: Dharhas Pothina
   - __Development Team Members__: Andy Wilson
 
-## Table of Contents
-
-1. [Usage](#usage)
-1. [Requirements](#requirements)
-1. [Development](#development)
-    1. [Installing Dependencies](#installing-dependencies)
-    1. [Tasks](#tasks)
-1. [Team](#team)
-1. [Contributing](#contributing)
-
 ## Requirements
 
 - pandas
@@ -32,12 +22,4 @@ In addition to reading instrument data files sonde3 can help with creating unifo
 - Node (for unit tests)
 - Sphynx (for documentation)
 
-
-## Development
-
-### Installing Dependencies
-
-### Roadmap
-
-## Contributing
 
