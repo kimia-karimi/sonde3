@@ -2,8 +2,7 @@ import struct
 import pandas as pd
 from datetime import datetime
 import pytz
-
-YSI_DEFINITIONS = pd.read_csv("../data/ysi_definitions.csv")
+import os
 
 def read_ysi(ysi_file, tzinfo=None):
         """
@@ -44,7 +43,10 @@ def read_ysi(ysi_file, tzinfo=None):
         except:
             print("Error: Could not open file <%s> \n" % ysi_file)
             raise
-            
+      
+        print (os.getcwd())
+        YSI_DEFINITIONS = pd.read_csv("sonde3/data/ysi_definitions.csv")
+        
         utc=pytz.utc 
         if tzinfo:
             localtime = tzinfo
