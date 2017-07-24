@@ -1,24 +1,63 @@
 from . import formats
 import pandas as pd
 import os
+import seawater
 
-def sonde():
-    print ("hi there")
-    formats.read_ysi("test")
+def sonde(filename, tzinfo=None):
+    """
+    Convert an instrument file to pandas DataFrame
 
+    Method autodetects the file type and calculates salinity (PSU) and dissolved oxygen (mg/L) if
+    the required parameters are present
+    """
+    file_type = autodetect(filename)
+    
+    if file_type is 'ysi_binary':
+        metadata, df = formats.read_ysi(filename, tzinfo)
+        df = calculate_salinity_psu(df)
+        df = calculate_do_mgl(df)
+        return metadata, df
+    else:
+        return None, None
+
+def calculate_salinity_psu(df):
+    """
+    Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package
+    """
+    df['seawater_salinity_PSU'] = df.apply (_calculate_salinity_psu,axis=1)
+    return df
+        
+def _calculate_salinity_psu(row):
+    if row['water_temp_c'] and row['water_conductivity_mS/cm'] and row['water_depth_m_nonvented']:
+        return  seawater.salt(row['water_conductivity_mS/cm']/ 42.914, row['water_temp_c'], row['water_depth_m_nonvented'] + 10.132501)
+    
+def calculate_do_mgl(df):
+    """
+    Calculate dissolved oxygen concentration in mg/L using Weiss's equation (1970).
+    
+    Weiss, R. (1970). "The solubility of nitrogen, oxygen, and argon in water and seawater".
+    """
+    df['seawater_do_mgl'] = df.apply (_calculate_do_mgl,axis=1)
+    return df
+        
+def _calculate_do_mgl(row):
+    if row['water_DO_%'] and row['seawater_salinity_PSU'] and row['water_temp_c']:
+        tk = 1 / (row['water_temp_c'] + 273.15)
+        p1 =-862194900000*tk**4+12438000000*tk**3-66423080*tk**2+157570.1*tk-139.344
+        p2 =2140.7*tk**2-10.754*tk+0.017674
+        dosat =0.01*2.71828182845904**(p1-row['seawater_salinity_PSU']*p2)
+        return(row['water_DO_%'] * dosat)
+              
+        
 def autodetect(filename):
     """
     Tests file for supported sonde filetypes.  
     
-    This method may be slow due to the file pointer being opened and closed multiple times.
-
+    This method may be slow due to the file pointer being opened and closed multiple times.  However, we only read at max 1024 bytes.
     """
     filetype = ''
-    
-    
     #test if file is binary or text.  This method does contain some false positives and negatives!
     # Will parse for those exceptions specifically where possible.
-    
     textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
     is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
     if is_binary_string(open(filename, 'rb').read(1024)):
@@ -46,7 +85,14 @@ def autodetect(filename):
         fid.close()
     else:
         fid = open(filename, 'r')
-        lines = [fid.readline() for i in range(3)]
+        
+        #If fails we read an unsupported binary by mistake, so pass that to caller
+        try:
+            lines = [fid.readline() for i in range(3)]
+        except:
+            filetype =  'unsupported_binary'  
+            fid.close()
+            return filetype
         
         if lines[0].lower().find('greenspan') != -1:
             filetype =  'greenspan_csv'

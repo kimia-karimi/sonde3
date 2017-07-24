@@ -44,7 +44,6 @@ def read_ysi(ysi_file, tzinfo=None):
             print("Error: Could not open file <%s> \n" % ysi_file)
             raise
       
-        print (os.getcwd())
         YSI_DEFINITIONS = pd.read_csv("sonde3/data/ysi_definitions.csv")
         
         utc=pytz.utc 
@@ -58,7 +57,7 @@ def read_ysi(ysi_file, tzinfo=None):
         num_params = 0
         data = []
         parameters = []
-        parameters.append("Datetime_(UTC)")
+        parameters.append("datetime_(UTC)")
         ysi_epoch_in_seconds = 446965200 #time began for YSI on 2004/03/01 !!
         
         record_type = fid.read(1)  #read single 8-bit byte
