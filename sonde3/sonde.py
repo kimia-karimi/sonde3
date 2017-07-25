@@ -14,8 +14,9 @@ def sonde(filename, tzinfo=None):
     
     if file_type is 'ysi_binary':
         metadata, df = formats.read_ysi(filename, tzinfo)
-        df = calculate_salinity_psu(df)
-        df = calculate_do_mgl(df)
+        if not df.empty:
+            df = calculate_salinity_psu(df)
+            df = calculate_do_mgl(df)
         return metadata, df
     else:
         return None, None
@@ -24,12 +25,13 @@ def calculate_salinity_psu(df):
     """
     Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package
     """
-    df['seawater_salinity_PSU'] = df.apply (_calculate_salinity_psu,axis=1)
+    if ('water_temp_c' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
+        df['seawater_salinity_PSU'] = df.apply (_calculate_salinity_psu,axis=1)
     return df
         
 def _calculate_salinity_psu(row):
-    if row['water_temp_c'] and row['water_conductivity_mS/cm'] and row['water_depth_m_nonvented']:
-        return  seawater.salt(row['water_conductivity_mS/cm']/ 42.914, row['water_temp_c'], row['water_depth_m_nonvented'] + 10.132501)
+    
+    return  seawater.salt(row['water_conductivity_mS/cm']/ 42.914, row['water_temp_c'], row['water_depth_m_nonvented'] + 10.132501)
     
 def calculate_do_mgl(df):
     """
@@ -37,18 +39,17 @@ def calculate_do_mgl(df):
     
     Weiss, R. (1970). "The solubility of nitrogen, oxygen, and argon in water and seawater".
     """
-    df['seawater_do_mgl'] = df.apply (_calculate_do_mgl,axis=1)
+    if ('seawater_DO_mgl' in df.columns) and ('seawater_salinity_PSU' in df.columns) and ('water_temp_c' in df.columns):
+        df['seawater_DO_mgl'] = df.apply (_calculate_do_mgl,axis=1)
     return df
         
 def _calculate_do_mgl(row):
-    if row['water_DO_%'] and row['seawater_salinity_PSU'] and row['water_temp_c']:
-        tk = 1 / (row['water_temp_c'] + 273.15)
-        p1 =-862194900000*tk**4+12438000000*tk**3-66423080*tk**2+157570.1*tk-139.344
-        p2 =2140.7*tk**2-10.754*tk+0.017674
-        dosat =0.01*2.71828182845904**(p1-row['seawater_salinity_PSU']*p2)
-        return(row['water_DO_%'] * dosat)
+    tk = 1 / (row['water_temp_c'] + 273.15)
+    p1 =-862194900000*tk**4+12438000000*tk**3-66423080*tk**2+157570.1*tk-139.344
+    p2 =2140.7*tk**2-10.754*tk+0.017674
+    dosat =0.01*2.71828182845904**(p1-row['seawater_salinity_PSU']*p2)
+    return(row['water_DO_%'] * dosat)
               
-        
 def autodetect(filename):
     """
     Tests file for supported sonde filetypes.  
