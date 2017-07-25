@@ -8,6 +8,11 @@ Sonde3 is used principally to support water quality instrument files collected s
 
 In addition to reading instrument data files sonde3 can help with creating uniformity across multiple instrument datasets.  Convert all your instrument files to similar units (e.g., report all datetimes as UTC, convert depth from feet to meters).  By using the seawater package, generate salinity (PSU) using the UNESCO 1981 and UNESCO 1983 (EOS-80) standards.  This is useful because salinity is calculated using different standards depending on the manufacturer of the instrument.  
 
+## Supported Formats
+
+  - __YSI__: binary '*.dat', Comma Separated, ASCII-TXT
+
+
 ## Team
 
   - __Lead Developer__: Evan Lee Turner
