@@ -26,7 +26,7 @@ def calculate_salinity_psu(df):
     Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package
     """
     if ('water_temp_c' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
-        df['seawater_salinity_PSU'] = df.apply (_calculate_salinity_psu,axis=1)
+        df['water_salinity_PSU'] = df.apply (_calculate_salinity_psu,axis=1)
     return df
         
 def _calculate_salinity_psu(row):
@@ -39,15 +39,15 @@ def calculate_do_mgl(df):
     
     Weiss, R. (1970). "The solubility of nitrogen, oxygen, and argon in water and seawater".
     """
-    if ('seawater_DO_mgl' in df.columns) and ('seawater_salinity_PSU' in df.columns) and ('water_temp_c' in df.columns):
-        df['seawater_DO_mgl'] = df.apply (_calculate_do_mgl,axis=1)
+    if ('water_DO_%' in df.columns) and ('water_salinity_PSU' in df.columns) and ('water_temp_c' in df.columns):
+        df['water_DO_mgl'] = df.apply (_calculate_do_mgl,axis=1)
     return df
         
 def _calculate_do_mgl(row):
     tk = 1 / (row['water_temp_c'] + 273.15)
     p1 =-862194900000*tk**4+12438000000*tk**3-66423080*tk**2+157570.1*tk-139.344
     p2 =2140.7*tk**2-10.754*tk+0.017674
-    dosat =0.01*2.71828182845904**(p1-row['seawater_salinity_PSU']*p2)
+    dosat =0.01*2.71828182845904**(p1-row['water_salinity_PSU']*p2)
     return(row['water_DO_%'] * dosat)
               
 def autodetect(filename):

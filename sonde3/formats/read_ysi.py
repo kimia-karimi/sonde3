@@ -80,8 +80,8 @@ def read_ysi(ysi_file, tzinfo=None):
                 site_name = site_name.strip(b'\x00').decode("utf-8") 
                 serial_number = serial_number.strip(b'\x00').decode("utf-8") 
                 
-                metadata = pd.DataFrame([(instr_type,system_sig,prog_ver,serial_number,site_name,logging_interval,begin_log_time,
-                                       first_sample_time)], columns=['Instrument_Type', 'System_Signal',
+                metadata = pd.DataFrame([(instr_type,"YSI",system_sig,prog_ver,serial_number,site_name,logging_interval,begin_log_time,
+                                       first_sample_time)], columns=['Instrument_Type', 'Manufacturer', 'System_Signal',
                                         'Program_Version','Instrument_Serial_Number','Site','Logging_Interval',
                                         'Begin_Log_Time_(UTC)', 'First_Sample_Time_(UTC)'])
                 
