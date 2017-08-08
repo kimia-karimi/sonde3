@@ -52,15 +52,15 @@ def read_ysi(ysi_file, tzinfo=None):
         if tzinfo:
             localtime = tzinfo
         else:
-            localtime = pytz.timezone('US/Eastern')
-            print ("Info: No time zone was set for file, assuming records are recorded in EST")
+            localtime = pytz.timezone('US/Central')
+            print ("Info: No time zone was set for file, assuming records are recorded in CST")
             
         record_type = []
         num_params = 0
         data = []
-        parameters = []
+        parameters = [] #3600 446965200
         parameters.append("datetime_(UTC)")
-        ysi_epoch_in_seconds = 446965200 #time began for YSI on 2004/03/01 !!
+        ysi_epoch_in_seconds = 446962140 #time began for YSI on 2004/03/01 !!
         
         record_type = fid.read(1)  #read single 8-bit byte
         while record_type:
