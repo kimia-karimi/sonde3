@@ -14,12 +14,17 @@ def sonde(filename, tzinfo=None):
     
     if file_type is 'ysi_binary':
         metadata, df = formats.read_ysi(filename, tzinfo)
-        if not df.empty:
-            df = calculate_salinity_psu(df)
-            df = calculate_do_mgl(df)
-        return metadata, df
+    elif file_type is 'ysi_csv':
+        metadata, df = formats.read_ysi_ascii(filename, ',', tzinfo)
+    elif file_type is 'ysi_tab':
+        metadata, df = formats.read_ysi_ascii(filename, '\t', tzinfo) 
     else:
-        return None, None
+        return pd.DataFrame(), pd.DataFrame()
+
+    if not df.empty:
+        df = calculate_salinity_psu(df)
+        df = calculate_do_mgl(df)
+        return metadata, df
 
 def calculate_salinity_psu(df):
     """
@@ -117,7 +122,9 @@ def autodetect(filename):
             filetype =  'ysi_text'
         elif lines[0].find('##YSI ASCII Datafile=') != -1:
             filetype =  'ysi_ascii'
-        elif lines[0].find("Date") > -1 and lines[1].find("M/D/Y") > -1:
+        elif (lines[0].find("Date") > -1 )and (lines[1].find("M/D/Y") > -1 )and (lines[0].find("\t") > -1):
+            filetype =  'ysi_tab'
+        elif lines[0].find("Date") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
             filetype =  'ysi_csv'
         elif lines[2].find('Manta') > -1:
             filetype = 'eureka_csv'

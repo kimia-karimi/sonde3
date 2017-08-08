@@ -3,6 +3,8 @@ import pandas as pd
 from datetime import datetime
 import pytz
 import os
+import io, itertools
+import csv
 
 def read_ysi(ysi_file, tzinfo=None):
         """
@@ -114,4 +116,18 @@ def read_ysi(ysi_file, tzinfo=None):
         fid.close()
         print ("Warning: empty dataframe in file <%s>" % ysi_file)
         return metadata, pd.DataFrame.from_records(data, columns=parameters)
-    
+
+
+def read_ysi_ascii(ysi_file, sep, tzinfo=None):
+    metadata =  pd.DataFrame(data = ['YSI'], columns=['Manufacturer'])
+    DF = pd.read_csv(ysi_file,parse_dates={'datetime': [0,1]}, sep=sep, engine='python')
+ 
+    header2 = DF.iloc[0]
+    new_columns = []
+    index = 0
+    #combine first two rows into the header, strip offending " characters if needed
+    for i in DF.columns:
+        new_columns.append((str(i) + ' ' + str(header2[index])).replace('"',''))
+        index +=1
+    DF.columns = new_columns  
+    return metadata, DF.drop(DF.index[0])
