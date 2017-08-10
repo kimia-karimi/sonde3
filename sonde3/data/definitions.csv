@@ -1,0 +1,11 @@
+parameter,unit,standard
+Temp,C,water_temp_c
+Depth,m,water_depth_m_nonvented
+Battery,V,instrument_battery_voltage
+Cond,mS/cm,water_conductivity_mS/cm
+SpCond,mS/cm,water_specific_conductivity_mS/cm
+ODO%,%,water_DO_%
+ODO Conc,mg/L,water_water_DO_mgl
+Salinity,ppt,water_salinity_psu
+TDS,g/L,water_tds_g/L
+Resistivity,KOhm.cm,water_resistivity_KOhm/cm

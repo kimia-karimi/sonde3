@@ -3,6 +3,9 @@ import pandas as pd
 import os
 import seawater
 
+
+
+
 def sonde(filename, tzinfo=None):
     """
     Convert an instrument file to pandas DataFrame
@@ -15,9 +18,9 @@ def sonde(filename, tzinfo=None):
     if file_type is 'ysi_binary':
         metadata, df = formats.read_ysi(filename, tzinfo)
     elif file_type is 'ysi_csv':
-        metadata, df = formats.read_ysi_ascii(filename, ',', tzinfo)
+        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',)
     elif file_type is 'ysi_tab':
-        metadata, df = formats.read_ysi_ascii(filename, '\t', tzinfo) 
+        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,'\t',) 
     else:
         return pd.DataFrame(), pd.DataFrame()
 

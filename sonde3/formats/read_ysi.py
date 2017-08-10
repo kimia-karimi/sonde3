@@ -5,6 +5,9 @@ import pytz
 import os
 import io, itertools
 import csv
+import warnings
+
+
 
 def read_ysi(ysi_file, tzinfo=None):
         """
@@ -46,19 +49,21 @@ def read_ysi(ysi_file, tzinfo=None):
             print("Error: Could not open file <%s> \n" % ysi_file)
             raise
       
-        YSI_DEFINITIONS = pd.read_csv("sonde3/data/ysi_definitions.csv")
+        
         
         utc=pytz.utc 
         if tzinfo:
             localtime = tzinfo
         else:
             localtime = pytz.timezone('US/Central')
-            print ("Info: No time zone was set for file, assuming records are recorded in CST")
+            warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+        package_directory = os.path.dirname(os.path.abspath(__file__))
+        YSI_DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/ysi_definitions.csv"))
             
         record_type = []
         num_params = 0
         data = []
-        parameters = [] #3600 446965200
+        parameters = [] 
         parameters.append("datetime_(UTC)")
         ysi_epoch_in_seconds = 446962140 #time began for YSI on 2004/03/01 !!
         
@@ -118,16 +123,37 @@ def read_ysi(ysi_file, tzinfo=None):
         return metadata, pd.DataFrame.from_records(data, columns=parameters)
 
 
-def read_ysi_ascii(ysi_file, sep, tzinfo=None):
-    metadata =  pd.DataFrame(data = ['YSI'], columns=['Manufacturer'])
-    DF = pd.read_csv(ysi_file,parse_dates={'datetime': [0,1]}, sep=sep, engine='python')
- 
-    header2 = DF.iloc[0]
-    new_columns = []
-    index = 0
-    #combine first two rows into the header, strip offending " characters if needed
-    for i in DF.columns:
-        new_columns.append((str(i) + ' ' + str(header2[index])).replace('"',''))
-        index +=1
-    DF.columns = new_columns  
-    return metadata, DF.drop(DF.index[0])
+def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, ):
+    """
+    Method reads a text based YSI sonde instrument file and returns a pandas DataFrame for the table and metadata.
+
+    Method makes many assumptions about the standard formatting of the text file.
+    Method assumes the file is of YSI origin, has at least two columns, and the first two colums are
+    the Date and Time.  A separator must be passed to the function as the deliminator YSI uses
+    can be different.  (Somtimes tab separated, comma, or a series of spaces)
+    """
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"))
+   
+
+    utc=pytz.utc 
+    if tzinfo:
+        localtime = tzinfo
+    else:
+        localtime = pytz.timezone('US/Central')
+        warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+
+    metadata =  pd.DataFrame(data = [['YSI', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Instrument_Type', 'Site'])
+    DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python', header=[0,1])
+
+    #convert timezone to UTC and insert at front column
+    DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
+    DF = DF.drop('Datetime_(Native)', 1)
+
+    for col in DF.columns:
+        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]  
+        match = submatch[submatch['unit'].str.contains(col[1])]
+        if not match.empty:
+            DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+
+    return metadata, DF
