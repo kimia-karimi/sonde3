@@ -144,16 +144,27 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, ):
         warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
 
     metadata =  pd.DataFrame(data = [['YSI', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Instrument_Type', 'Site'])
-    DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python', header=[0,1])
+    DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python', header=[0,1],na_values=['','na'])
 
     #convert timezone to UTC and insert at front column
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
 
+    #this submethod will match our read columns (tuple) to the master DEFINITION file
     for col in DF.columns:
-        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]  
-        match = submatch[submatch['unit'].str.contains(col[1])]
+            
+        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
+        if submatch.empty:
+            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
+     
+        if "Unnamed" not in col[1]:  #check for a null value in the units column
+            match = submatch[submatch['unit'].str.contains(col[1])]
+        else:
+            DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
+            
         if not match.empty:
-            DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+                DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+        
+            
 
     return metadata, DF
