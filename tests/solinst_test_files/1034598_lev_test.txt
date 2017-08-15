@@ -1,6 +1,6 @@
 [header]
 # format choices: ysi,greenspan,hydrotech,hydrolab,macroctd,eureka
-format = 'solinst'
+format = 'solinst_csv'
 
 
 [format_parameters]

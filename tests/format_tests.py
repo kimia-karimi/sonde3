@@ -6,13 +6,16 @@ from configobj import ConfigObj
 from nose.tools import assert_almost_equal, eq_, set_trace
 import numpy as np
 import quantities as pq
-
-import sonde
-from sonde import quantities as sq
-from sonde.timezones import cst, cdt
+import pytz
+import sonde3
+#from sonde import quantities as sq
+#from sonde.timezones import cst, cdt
 
 # global tz
 tz = None
+cdt = pytz.timezone('US/Central')
+cst = pytz.timezone('US/Central')
+utc=pytz.utc
 
 
 def test_files():
@@ -38,7 +41,7 @@ def test_files():
 
 def check_autodetect(test_file, sonde_file):
     file_format = test_file['header']['format']
-    autodetect_result = sonde.autodetect(sonde_file)
+    autodetect_result = sonde3.autodetect(sonde_file)
 
     assert autodetect_result == file_format, \
            "Autodetection failed: %s != %s" % (autodetect_result, file_format)

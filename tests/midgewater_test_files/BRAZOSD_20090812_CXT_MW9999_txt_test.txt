@@ -1,6 +1,6 @@
 [header]
 # format choices: ysi,greenspan,hydrotech,hydrolab,macroctd,eureka
-format = 'midgewater'
+format = 'midgewater_csv'
 
 
 [format_parameters]

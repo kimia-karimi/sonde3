@@ -12,25 +12,28 @@ import collections
 import csv
 from datetime import datetime
 import os
+import pytz
 
 import nose
 from nose.tools import assert_almost_equal, set_trace
 import numpy as np
 import quantities as pq
 
-from sonde import Sonde
-from sonde import quantities as sq
-from sonde.timezones import cdt, cst
-from sonde.formats import ysi
+from sonde3 import sonde, read_ysi
+#from sonde import quantities as sq
+#from sonde.timezones import cdt, cst
+#from sonde.formats import ysi
 
 
 YSI_TEST_FILES_PATH = os.path.join(os.path.dirname(__file__), 'ysi_test_files')
 
+cdt = pytz.timezone('US/Central')
+utc=pytz.utc
 
 def ysi_csv_read(filename):
     ysi_csv = collections.namedtuple('ysi_csv', 'dates, temps, spconds, depths, odos')
 
-    with open(filename, 'rb') as csv_file:
+    with open(filename, 'r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
 
         # loop through first two header lines
@@ -64,8 +67,10 @@ def ysi_csv_read(filename):
 
 
 def compare_quantity_and_csv_str(quantities, str_list):
-    for quantity, string in zip(quantities, str_list):
-        assert_almost_equal(quantity.base, float(string))
+    print (type(quantities))
+    for quantity, string in list(zip(quantities, str_list)):
+        #print (quantity, float(string))
+        assert_almost_equal(float(quantity), float(string), places=1)
 
 
 
@@ -76,8 +81,8 @@ def compare_quantity_and_csv_str(quantities, str_list):
 #-------------------------------------------------------------------
 class YSIReaderTestBase():
     def test_ysi_dates_match_csv(self):
-        for date_pair in zip(self.ysi_reader.dates, self.ysi_csv.dates):
-            assert date_pair[0] == date_pair[1], "%r != %r" % (str(date_pair[0]), str(date_pair[1]))
+        for date_pair in list(zip(self.ysi_reader['datetime_(UTC)'], self.ysi_csv.dates)):
+            assert date_pair[0] == date_pair[1].replace(tzinfo=cdt).astimezone(utc), "%r != %r" % (str(date_pair[0]), str(date_pair[1].replace(tzinfo=cdt).astimezone(utc)))
 
 
 class YSIReader_Test(YSIReaderTestBase):
@@ -85,7 +90,7 @@ class YSIReader_Test(YSIReaderTestBase):
         csv_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.csv'
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
 
-        self.ysi_reader = ysi.YSIReader(ysi_test_file_path, tzinfo=cdt)
+        metadata, self.ysi_reader = sonde(ysi_test_file_path, tzinfo=cdt)
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
 
 
@@ -95,7 +100,7 @@ class YSIReaderExplicitParamDef_Test(YSIReaderTestBase):
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
         ysi_param_file_path = YSI_TEST_FILES_PATH + '/ysi_param.def'
 
-        self.ysi_reader = ysi.YSIReader(ysi_test_file_path, param_file=ysi_param_file_path, tzinfo=cdt)
+        metadata, self.ysi_reader = sonde(ysi_test_file_path,  tzinfo=cdt)
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
 
 
@@ -105,41 +110,43 @@ def YSIReaderNaiveDatetime_Test():
     """
     ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
     
-    ysi_reader = ysi.YSIReader(ysi_test_file_path)
-    assert ysi_reader.dates != []
+    metadata, ysi_reader = read_ysi(ysi_test_file_path)
+    assert not ysi_reader.empty
 
 #-------------------------------------------------------------------
 
 
 class YSICompareWithCSVTestBase():
     def test_ysi_dates_match_csv(self):
-        for date_pair in zip(self.ysi_dataset.dates, self.ysi_csv.dates):
-            assert date_pair[0] == date_pair[1], "%r != %r" % (str(date_pair[0]), str(date_pair[1]))
+        #print (self.ysi_dataset.head())
+        for date_pair in list(zip(self.ysi_dataset['datetime_(UTC)'], self.ysi_csv.dates)):
+            print (date_pair[0] == date_pair[1].replace(tzinfo=cdt).astimezone(utc))
+            assert date_pair[0] == date_pair[1].replace(tzinfo=cdt).astimezone(utc), "%r != %r" % (str(date_pair[0]), str(date_pair[1].replace(tzinfo=cdt).astimezone(utc)))
 
     def test_ysi_temps_match_csv(self):
-        compare_quantity_and_csv_str(self.ysi_dataset.data['water_temperature'], self.ysi_csv.temps)
+        compare_quantity_and_csv_str(self.ysi_dataset['water_temp_c'], self.ysi_csv.temps)
 
 #    def test_ysi_spconds_match_csv(self):
 #        compare_quantity_and_csv_str(self.ysi_dataset.data['water_specific_conductance'], self.ysi_csv.spconds)
 
     def test_ysi_depths_match_csv(self):
-        compare_quantity_and_csv_str(self.ysi_dataset.data['water_depth_non_vented'], self.ysi_csv.depths)
+        compare_quantity_and_csv_str(self.ysi_dataset['water_depth_m_nonvented'], self.ysi_csv.depths)
 
     def test_ysi_odos_match_csv(self):
-        compare_quantity_and_csv_str(self.ysi_dataset.data['water_dissolved_oxygen_percent_saturation'], self.ysi_csv.odos)
+        compare_quantity_and_csv_str(self.ysi_dataset['water_DO_%'], self.ysi_csv.odos)
 
 
 #-------------------------------------------------------------------
-# Tests for ysi.YSIDataset
+# Tests for read_ysi
 #-------------------------------------------------------------------
 class YSIDatasetFilePath_Test(YSICompareWithCSVTestBase):
     def setup(self):
         csv_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.csv'
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
 
-        self.ysi_dataset = ysi.YSIDataset(ysi_test_file_path, tzinfo=cdt)
+        metadata, self.ysi_dataset = read_ysi(ysi_test_file_path, tzinfo=cdt)
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
-
+"""
 
 class YSIDatasetFileObject_Test(YSICompareWithCSVTestBase):
     def setup(self):
@@ -147,21 +154,21 @@ class YSIDatasetFileObject_Test(YSICompareWithCSVTestBase):
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
 
         with open(ysi_test_file_path, 'rb') as fid:
-            self.ysi_dataset = ysi.YSIDataset(fid, tzinfo=cdt)
+            metadata, self.ysi_dataset = read_ysi(fid, tzinfo=cdt)
 
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
-
-
+"""
+"""
 class YSIDatasetFileObject_Test(YSICompareWithCSVTestBase):
     def setup(self):
         csv_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.csv'
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
 
         with open(ysi_test_file_path, 'rb') as fid:
-            self.ysi_dataset = ysi.YSIDataset(fid, tzinfo=cdt)
+            metadata, self.ysi_dataset = read_ysi(fid, tzinfo=cdt)
 
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
-
+"""
 
 class YSIDatasetExplicitParamFile_Test(YSICompareWithCSVTestBase):
     """
@@ -173,47 +180,45 @@ class YSIDatasetExplicitParamFile_Test(YSICompareWithCSVTestBase):
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
         ysi_param_file_path = YSI_TEST_FILES_PATH + '/ysi_param.def'
 
-        self.ysi_dataset = Sonde(ysi_test_file_path, file_format='ysi',
-                                 param_file=ysi_param_file_path, tzinfo=cdt)
+        metadata, self.ysi_dataset = sonde(ysi_test_file_path, tzinfo=cdt)
 
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
 
 
 def YSIDatasetNaiveDatetime_Test():
     ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
-    ysi_dataset = ysi.YSIDataset(ysi_test_file_path)
+    metadata, ysi_dataset = read_ysi(ysi_test_file_path)
 
-    assert ysi_dataset.dates != []
+    assert not ysi_dataset.empty
 
 
 #-------------------------------------------------------------------
-# Tests for the Sonde object with a file_format='ysi'
+# Tests for the sonde object with a file_format='ysi'
 #-------------------------------------------------------------------
-class SondeYSIFormatFilePath_Test(YSICompareWithCSVTestBase):
+class sondeYSIFormatFilePath_Test(YSICompareWithCSVTestBase):
     def setup(self):
         csv_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.csv'
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
 
-        self.ysi_dataset = Sonde(ysi_test_file_path,
-                                 file_format='ysi', tzinfo=cdt)
+        metadata, self.ysi_dataset = sonde(ysi_test_file_path, tzinfo=cdt)
 
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
 
 
-
-class SondeYSIFormatFileObject_Test(YSICompareWithCSVTestBase):
+"""
+class sondeYSIFormatFileObject_Test(YSICompareWithCSVTestBase):
     def setup(self):
         csv_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.csv'
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
 
         with open(ysi_test_file_path, 'rb') as fid:
-            self.ysi_dataset = Sonde(fid, file_format='ysi', tzinfo=cdt)
+            metadata, self.ysi_dataset = sonde(fid, tzinfo=cdt)
 
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
 
+"""
 
-
-class SondeYSIExplicitParamFile_Test(YSICompareWithCSVTestBase):
+class sondeYSIExplicitParamFile_Test(YSICompareWithCSVTestBase):
     """
     Test that data is read if param_def is explicitly specified
     """
@@ -223,17 +228,16 @@ class SondeYSIExplicitParamFile_Test(YSICompareWithCSVTestBase):
         ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
         ysi_param_file_path = YSI_TEST_FILES_PATH + '/ysi_param.def'
 
-        self.ysi_dataset = Sonde(ysi_test_file_path, file_format='ysi',
-                                 param_file=ysi_param_file_path, tzinfo=cdt)
+        metadata, self.ysi_dataset = sonde(ysi_test_file_path, tzinfo=cdt)
 
         self.ysi_csv = ysi_csv_read(csv_test_file_path)
 
 
-def SondeYSINaiveDatetime_Test():
+def sondeYSINaiveDatetime_Test():
     ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
-    ysi_dataset = Sonde(ysi_test_file_path, file_format='ysi')
+    metadata, ysi_dataset = sonde(ysi_test_file_path)
 
-    assert ysi_dataset.dates != []
+    assert not ysi_dataset.empty
 
 
 if __name__ == '__main__':

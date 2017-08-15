@@ -14,12 +14,12 @@ import os
 import nose
 from nose.tools import assert_almost_equal, eq_, set_trace
 import numpy as np
-import quantities as pq
+#import quantities as pq
 
-from sonde import BaseSondeDataset, Sonde
-from sonde import quantities as sq
-from sonde.timezones import cdt, cst
-from sonde.formats import ysi
+from sonde3 import sonde
+#from sonde import quantities as sq
+#from sonde.timezones import cdt, cst
+#from sonde.formats import ysi
 
 ysi_test_files_path = os.path.join(os.path.dirname(__file__), 'ysi_test_files')
 
