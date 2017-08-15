@@ -6,6 +6,7 @@ import os
 import io, itertools
 import csv
 import warnings
+import ntpath
 
 def read_ysi(ysi_file, tzinfo=None):
         """
@@ -88,9 +89,10 @@ def read_ysi(ysi_file, tzinfo=None):
                 
                 metadata = pd.DataFrame([(instr_type,"YSI",system_sig,prog_ver,serial_number,site_name,logging_interval,begin_log_time,
                                        first_sample_time)], columns=['Instrument_Type', 'Manufacturer', 'System_Signal',
-                                        'Program_Version','Instrument_Serial_Number','Site','Logging_Interval',
+                                        'Program_Version','Instrument_Serial_Number','Station','Logging_Interval',
                                         'Begin_Log_Time_(UTC)', 'First_Sample_Time_(UTC)'])
-                
+                head, tail = ntpath.split(ysi_file)
+                metadata = metadata.set_value([0], 'Filename' , tail)
             elif record_type == b'B':  #row headers of the data
                 num_params = num_params + 1
                 fmt = '<hhHff'  #little endian: short,short,ushort,float,float
@@ -146,7 +148,9 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None):
         localtime = pytz.timezone('US/Central')
         warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
 
-    metadata =  pd.DataFrame(data = [['YSI', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Instrument_Type', 'Site'])
+    metadata =  pd.DataFrame(data = [['YSI', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Model', 'Station'])
+    head, tail = ntpath.split(ysi_file)
+    metadata = metadata.set_value([0], 'Filename' , tail)
     DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python', header=[0,1],na_values=['','na'])
 
     #convert timezone to UTC and insert at front column

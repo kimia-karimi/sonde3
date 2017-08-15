@@ -8,6 +8,11 @@ import warnings
 import ntpath
 
 def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
+    """ Reads a proprietary format Hydrotech file
+
+
+
+    """
     utc=pytz.utc 
     if tzinfo:
         localtime = tzinfo
@@ -16,18 +21,10 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
         warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
 
     package_directory = os.path.dirname(os.path.abspath(__file__))
-    DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252',)
-    #DEFINITIONS = pd.read_csv("sonde3/data/definitions.csv")
+    DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
 
-    #try:
     DF = pd.read_csv(hydrotech_file, sep=delim, parse_dates={'Datetime_(ascii)': [0,1]},\
                       na_values=['','na', '999999', '#'], engine='c',encoding='cp1252', names = list(range(0,20)))
-        #DF = pd.read_csv(hydrotech_file,parse_dates={'Datetime_(ascii)': [0,1]}, sep=delim, \
-        #              header=[10,11],na_values=['','na','999999', '#'], skiprows=[10], encoding='cp1252')
-    #except:
-    #    warnings.warn("Could not process file <%s>" %str(hydrotech_file), stacklevel=2)
-    #    return pd.DataFrame(), pd.DataFrame()
-    #   raise
 
     #drop the end of the file messages if exist    
     droplist = ['Power loss', 'Late probe', 'Recovery finished']
