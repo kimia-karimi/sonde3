@@ -5,7 +5,7 @@ import os
 import io, itertools
 import csv
 import warnings
-
+import ntpath
 
 def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     utc=pytz.utc 
@@ -49,18 +49,14 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     columns[0] = "Datetime_(ascii)"
     DF.columns = columns
     DF = DF.drop(DF.index[:2])
-
     DF = pd.concat([DF, pd.to_datetime(DF['Datetime_(ascii)']).rename('Datetime_(Native)')], axis=1)
-
     
     #convert timezone to UTC and insert at front column
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
     DF = DF.drop('Datetime_(ascii)', 1)
     
-
     #drop all the odd informational rows at bottom of file
-    
     for col in DF.columns:   
         submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
         if submatch.empty:
@@ -74,8 +70,18 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
         if not match.empty:
                 DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
                 
-    
-
-    metadata =  pd.DataFrame(data = [['Hydrotech', '', '', '']], \
-                             columns=['Manufacturer', 'Instrument_Serial_Number','Instrument_Type', 'Site'])
+    raw_metadata = pd.read_csv(hydrotech_file, sep=delim, header=None,nrows=10)
+    metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Date','Filename'))
+    metadata = metadata.append([{'Manufacturer' : 'Hydrotech'}])
+    head, tail = ntpath.split(hydrotech_file)
+    metadata = metadata.set_value([0], 'Filename' , tail)
+    for i, row in raw_metadata[0:9].iterrows():
+        if i == 0:
+            metadata = metadata.set_value([0], 'Model',  row[0].split()[0])
+            metadata = metadata.set_value([0], 'Instrument_Serial_Number',  row[0].split()[1])
+        elif i == 1:
+            metadata = metadata.set_value([0], 'Station',  row[0].split(' : ')[1])
+        elif i == 2:
+            metadata = metadata.set_value([0], 'Deployment_Setup_Date',  datetime.strptime(row[0].split(' : ')[1], '%m%d%y'))
+              
     return metadata, DF
