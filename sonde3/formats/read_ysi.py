@@ -7,8 +7,6 @@ import io, itertools
 import csv
 import warnings
 
-
-
 def read_ysi(ysi_file, tzinfo=None):
         """
         Read a proprietary YSI sonde instrument file returning as a `pandas` dataframe in UTC timezone
@@ -59,7 +57,8 @@ def read_ysi(ysi_file, tzinfo=None):
             warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
         package_directory = os.path.dirname(os.path.abspath(__file__))
         YSI_DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/ysi_definitions.csv"))
-            
+        DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
+        
         record_type = []
         num_params = 0
         data = []
@@ -98,6 +97,11 @@ def read_ysi(ysi_file, tzinfo=None):
                 fmt_size = struct.calcsize(fmt) 
                 channel, sensor,probe,zero_scale,full_scale = struct.unpack(fmt, fid.read(fmt_size))
                 parameters.append(YSI_DEFINITIONS.loc[sensor]["Short_Name"] )
+
+                #check master definition list to see if parameter is verified
+                submatch = DEFINITIONS[DEFINITIONS['standard'].str.contains(parameters[-1])]
+                if submatch.empty:
+                    warnings.warn("Could not match parameter <%s> to definition file" %str(parameters[-1]) , stacklevel=2)
             elif record_type == b'D':  #actual data rows
                 fmt = '<l' + str(num_params) + 'f'  #little endian, long (our datetime), variable number floats (our data rows)
                 fmt_size = struct.calcsize(fmt)
@@ -123,7 +127,7 @@ def read_ysi(ysi_file, tzinfo=None):
         return metadata, pd.DataFrame.from_records(data, columns=parameters)
 
 
-def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, ):
+def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None):
     """
     Method reads a text based YSI sonde instrument file and returns a pandas DataFrame for the table and metadata.
 
@@ -133,8 +137,7 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, ):
     can be different.  (Somtimes tab separated, comma, or a series of spaces)
     """
     package_directory = os.path.dirname(os.path.abspath(__file__))
-    DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"))
-   
+    DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
 
     utc=pytz.utc 
     if tzinfo:
@@ -164,7 +167,5 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, ):
             
         if not match.empty:
                 DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
-        
-            
 
     return metadata, DF

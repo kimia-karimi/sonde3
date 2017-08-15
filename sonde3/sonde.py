@@ -2,7 +2,7 @@ from . import formats
 import pandas as pd
 import os
 import seawater
-
+import warnings
 
 
 
@@ -20,14 +20,19 @@ def sonde(filename, tzinfo=None):
     elif file_type is 'ysi_csv':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',)
     elif file_type is 'ysi_tab':
-        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,'\t',) 
+        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,'\t')
+    elif file_type is 'hydrotech_csv':
+        metadata, df = formats.read_hydrotech(filename,  tzinfo,',') 
     else:
+        warnings.warn("File format <%s> not supported" %str(file_type) , stacklevel=2)
+        
         return pd.DataFrame(), pd.DataFrame()
 
     if not df.empty:
         df = calculate_salinity_psu(df)
         df = calculate_do_mgl(df)
-        return metadata, df
+    
+    return metadata, df
 
 def calculate_salinity_psu(df):
     """

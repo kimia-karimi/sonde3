@@ -19,7 +19,7 @@ DO,uMol/L,_DOuMol,2
 pH,mV,water_ph_mv,1
 pH,pH,water_ph,2
 ORP,mV,_ORPmV,0
-Pressure-Abs,psia,_Prespsia,2
+Pressure-Abs,psia,water_pressure_abs,2
 Pressure-Gau,psig,_Prespsig,2
 Depth,meters,water_depth_m_nonvented,3
 Depth,ft,_Depft,3
