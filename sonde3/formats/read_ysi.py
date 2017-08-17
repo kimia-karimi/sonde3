@@ -114,12 +114,17 @@ def read_ysi(ysi_file, tzinfo=None):
                 fmt_size = struct.calcsize(fmt)
                 while record_type == b'D':  #repeat importing rows until EOF
                     row = list(struct.unpack(fmt, fid.read(fmt_size)))
-                    test = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds).replace(tzinfo=localtime)
-                    if bool(test.dst()):
-                        print ("yes")
-                        row[0] = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds + 540 - 9600).replace(tzinfo=localtime).astimezone(utc)
-                    else:    
-                        row[0] = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds + 540).replace(tzinfo=localtime).astimezone(utc)
+                    dt = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds)
+                    dt_dst = localtime.localize(dt, is_dst=True)
+                    #row[0] = dt.astimezone(utc)
+                    
+                    if bool(dt_dst.dst()):
+                        dt = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds - 3600)
+                        row[0] = localtime.localize(dt, is_dst=True).astimezone(utc)
+                    else:
+                        #dt = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds)
+                        row[0] = dt_dst.astimezone(utc)
+                    
                     data.append(row)
                     record_type = fid.read(1) 
                 #the file has ended, close and return    

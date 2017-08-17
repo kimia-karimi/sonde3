@@ -6,7 +6,7 @@ import warnings
 
 
 
-def sonde(filename, tzinfo=None):
+def sonde(filename, tzinfo=None, remove_invalids=False):
     """
     Convert an instrument file to pandas DataFrame
 
@@ -31,6 +31,9 @@ def sonde(filename, tzinfo=None):
         return pd.DataFrame(), pd.DataFrame()
 
     if not df.empty:
+        if remove_invalids is True:
+            df = _remove_invalids(df)
+            
         df = calculate_floats(df)
         df = calculate_conductance(df)
         df = calculate_salinity_psu(df)
@@ -62,6 +65,17 @@ def calculate_floats(df):
         df['instrument_battery_voltage'] = df['instrument_battery_voltage'].apply(floater)
     """
 
+def _remove_invalids(df):
+    #multiplies to remove negative values
+    zerocheck = lambda x: x*(x>0)
+
+    #split set
+    datetime = df.iloc[:,0]
+    data = df.iloc[:,1:]
+    data = data.applymap(zerocheck)
+    
+
+    return pd.concat([datetime,data], axis=1)
 
     
 def calculate_conductance(df):
