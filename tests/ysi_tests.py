@@ -49,7 +49,7 @@ def ysi_csv_read(filename):
         for row in csv_reader:
             timestamp = row[0] + ' ' + row[1]
             date = datetime.strptime(timestamp, '%m/%d/%y %H:%M:%S')
-            date = date.replace(tzinfo=cdt)
+            #date = cdt.localize(date, is_dst=True).astimezone(utc)
             date_list.append(date)
             temp_list.append(row[2])
             spcond_list.append(row[3])
@@ -81,8 +81,13 @@ def compare_quantity_and_csv_str(quantities, str_list):
 #-------------------------------------------------------------------
 class YSIReaderTestBase():
     def test_ysi_dates_match_csv(self):
-        for date_pair in list(zip(self.ysi_reader['datetime_(UTC)'], self.ysi_csv.dates)):
-            assert date_pair[0] == cdt.localize(date_pair[1]).astimezone(utc), "%r != %r" % (str(date_pair[0]), str(cdt.localize(date_pair[1]).astimezone(utc)))
+        for date_pair in list(zip(self.ysi_reader['Datetime_(UTC)'], self.ysi_csv.dates)):
+            
+            if date_pair[1].tzinfo is not None:
+                test_date = date_pair[1].replace(tzinfo=cdt).astimezone(utc)
+            else:
+                test_date = cdt.localize(date_pair[1], is_dst=True).astimezone(utc)
+            assert date_pair[0] == test_date, "%r != %r" % (str(date_pair[0]), str(test_date))
 
 
 class YSIReader_Test(YSIReaderTestBase):
@@ -119,9 +124,12 @@ def YSIReaderNaiveDatetime_Test():
 class YSICompareWithCSVTestBase():
     def test_ysi_dates_match_csv(self):
         #print (self.ysi_dataset.head())
-        for date_pair in list(zip(self.ysi_dataset['datetime_(UTC)'], self.ysi_csv.dates)):
-            print (date_pair[0] == date_pair[1].replace(tzinfo=cdt).astimezone(utc))
-            assert date_pair[0] == date_pair[1].replace(tzinfo=cdt).astimezone(utc), "%r != %r" % (str(date_pair[0]), str(date_pair[1].replace(tzinfo=cdt).astimezone(utc)))
+        for date_pair in list(zip(self.ysi_dataset['Datetime_(UTC)'], self.ysi_csv.dates)):
+            if date_pair[1].tzinfo is not None:
+                test_date = date_pair[1].replace(tzinfo=cdt).astimezone(utc)
+            else:
+                test_date = cdt.localize(date_pair[1], is_dst=True).astimezone(utc)
+            assert date_pair[0] == test_date, "%r != %r" % (str(date_pair[0]), str(test_date))
 
     def test_ysi_temps_match_csv(self):
         compare_quantity_and_csv_str(self.ysi_dataset['water_temp_c'], self.ysi_csv.temps)

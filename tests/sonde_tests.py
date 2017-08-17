@@ -24,12 +24,12 @@ from sonde3 import sonde
 ysi_test_files_path = os.path.join(os.path.dirname(__file__), 'ysi_test_files')
 
 
-
-class SondeTestDataset(BaseSondeDataset):
-    """
-    A dummy test dataset - so aspects of BaseSondeDataset can be
-    tested independent of parsing logic
-    """
+"""
+class SondeTestDataset():
+    
+    #A dummy test dataset - so aspects of BaseSondeDataset can be
+    #tested independent of parsing logic
+    
     def __init__(self):
         super(SondeTestDataset, self).__init__()
 
@@ -208,3 +208,4 @@ class BaseSondeDataset_Test():
     
 if __name__ == '__main__':
     nose.run()
+"""

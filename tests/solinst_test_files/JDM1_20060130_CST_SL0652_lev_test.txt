@@ -11,10 +11,10 @@ log_file_name =
 tz = 
 
 # site name: if present in file else leave blank
-site_name = 'JDM1'
+Station = 'JDM1'
 
 # instrument serial number, if present in file else leave blank
-serial_number ='60652'
+Instrument_Serial_Number ='60652'
 
 
 

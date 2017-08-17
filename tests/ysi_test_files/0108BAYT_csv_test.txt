@@ -11,18 +11,18 @@ log_file_name =
 tz = 
 
 # site name: if present in file else leave blank
-site_name = 
+Station = 
 
 # instrument serial number, if present in file else leave blank
-serial_number =
+Instrument_Serial_Number =
 
 
 # datetimes in fmt MM/DD/YYYY hh:mm:ss, if datetimes not provided in
 # file header then use first and last line in data
 # datetime provided in first line of data
-setup_time = '01/29/2008 09:00:00'
-start_time = '01/29/2008 09:00:00'
-stop_time = '03/13/2008 14:00:00'
+Deployment_Setup_Time = '01/29/2008 09:00:00'
+Deployment_Start_Time = '01/29/2008 09:00:00'
+Deployment_Stop_Time = '03/13/2008 14:00:00'
 
 
 [data]

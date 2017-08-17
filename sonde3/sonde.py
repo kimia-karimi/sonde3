@@ -152,15 +152,23 @@ def autodetect(filename):
         elif lines[0].find(b'MacroCTD') != -1:
             filetype =  'macroctd_binary'
         elif lines[0].find(b'\x09\x08\x10\x00\x00\x06\x05\x00') != -1:  #xls types
-            if lines[1].find(b'Manta') > -1:
+            
+            if lines[1].find(b'Manta') > -1 or lines[1].find(b'\xb0') > -1 or \
+               lines[0].find(b'Start time : ') > -1:
                 filetype = 'eureka_xls'
             elif (lines[0].find(b'Greenspan') != -1) or (lines[1].find(b'Greenspan') != -1) or (lines[0].find(b'GREENSPAN') != -1):
                 filetype =  'greenspan_xls'
             else:
-                filetype =  'unsupported_xls'
+                if  lines[1].find(b'\xb0'):
+                    filetype = 'eureka_xls'
+                else:
+                    filetype =  'unsupported_xls'
         else:
             if (lines[0].find(b',Greenspan') != -1):
                 filetype = 'greenspan_csv'
+            elif lines[2].find(b'Manta') > -1 or lines[1].find(b'\xb0') > -1 or \
+                   lines[0].find(b'Start time : ') > -1:
+                filetype = 'eureka_csv'
             else:
                 filetype = 'unsupported_csv'
     
@@ -203,8 +211,11 @@ def autodetect(filename):
             filetype =  'ysi_csv_datetime'
         elif lines[0].find("Date") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
             filetype =  'ysi_csv'
-        elif lines[2].find('Manta') > -1:
+        elif lines[2].find('Manta') > -1 or lines[1].find('\xb0') > -1 or \
+           lines[0].find('Start time : ') > -1:
             filetype = 'eureka_csv'
+        elif lines[0].lower().find('macroctd') != -1:
+            filetype = 'macroctd_csv'
             
         else:
             filetype = 'unsupported_ascii'

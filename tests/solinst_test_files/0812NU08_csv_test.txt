@@ -11,10 +11,10 @@ log_file_name = ''
 tz = 
 
 # site name: if present in file else leave blank
-site_name = 'Nueces'
+Station = 'Nueces'
 
 # instrument serial number, if present in file else leave blank
-serial_number = '1067896'
+Instrument_Serial_Number = '1067896'
 
 # datetimes in fmt MM/DD/YYYY hh:mm:ss, if datetimes not provided in
 # file header then use first and last line in data

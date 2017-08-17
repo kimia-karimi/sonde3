@@ -66,7 +66,7 @@ def read_ysi(ysi_file, tzinfo=None):
         num_params = 0
         data = []
         parameters = [] 
-        parameters.append("datetime_(UTC)")
+        parameters.append("Datetime_(UTC)")
         #ysi_epoch_in_seconds = 446962140 #time began for YSI on 2004/03/01 !!
         #ysi_epoch_in_seconds = 446969340 #time began for YSI on 2004/03/01 !!
         #ysi_epoch_in_seconds = 446968800
@@ -93,9 +93,9 @@ def read_ysi(ysi_file, tzinfo=None):
                 serial_number = serial_number.strip(b'\x00').decode("utf-8") 
                 
                 metadata = pd.DataFrame([(instr_type,"YSI",system_sig,prog_ver,serial_number,site_name,logging_interval,begin_log_time,
-                                       first_sample_time)], columns=['Instrument_Type', 'Manufacturer', 'System_Signal',
+                                       first_sample_time, "", "", "")], columns=['Instrument_Type', 'Manufacturer', 'System_Signal',
                                         'Program_Version','Instrument_Serial_Number','Station','Logging_Interval',
-                                        'Begin_Log_Time_(UTC)', 'First_Sample_Time_(UTC)'])
+                                        'Begin_Log_Time_(UTC)', 'First_Sample_Time_(UTC)', 'Deployment_Setup_Time',  'Deployment_Start_Time', 'Deployment_Stop_Time'])
                 head, tail = ntpath.split(ysi_file)
                 metadata = metadata.set_value([0], 'Filename' , tail)
             elif record_type == b'B':  #row headers of the data
@@ -169,7 +169,7 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
     if datetimecols is None:
         datetimecols = [0,1]
         
-    metadata =  pd.DataFrame(data = [['YSI', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Model', 'Station'])
+    metadata =  pd.DataFrame(data = [['YSI', '', '', '', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Model', 'Station', 'Deployment_Setup_Time', 'Deployment_Start_Time', 'Deployment_Stop_Time'])
     head, tail = ntpath.split(ysi_file)
     metadata = metadata.set_value([0], 'Filename' , tail)
     DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, engine='python', header=[0,1],na_values=['','na'])
