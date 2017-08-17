@@ -19,6 +19,8 @@ def sonde(filename, tzinfo=None):
         metadata, df = formats.read_ysi(filename, tzinfo)
     elif file_type is 'ysi_csv':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',)
+    elif file_type is 'ysi_csv_datetime':
+        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',[0])
     elif file_type is 'ysi_tab':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,'\t')
     elif file_type is 'hydrotech_csv':
@@ -29,10 +31,50 @@ def sonde(filename, tzinfo=None):
         return pd.DataFrame(), pd.DataFrame()
 
     if not df.empty:
+        df = calculate_floats(df)
+        df = calculate_conductance(df)
         df = calculate_salinity_psu(df)
         df = calculate_do_mgl(df)
     
     return metadata, df
+
+def calculate_floats(df):
+    #converts rows to floats
+    floater = lambda x: float(x)
+
+    #split set
+    datetime = df.iloc[:,0]
+    data = df.iloc[:,1:]
+    data = data.applymap(floater)
+    
+
+    return pd.concat([datetime,data], axis=1)
+    
+
+    """
+    if ('water_specific_conductivity_mS/cm' in df.columns):
+        df['water_specific_conductivity_mS/cm'] = df['water_specific_conductivity_mS/cm'].apply(floater)
+    if ('water_temp_c' in df.columns):
+        df['water_temp_c'] = df['water_temp_c'].apply(floater)
+    if ('water_depth_m_nonvented' in df.columns):
+        df['water_depth_m_nonvented'] = df['water_depth_m_nonvented'].apply(floater)
+    if ('instrument_battery_voltage' in df.columns):
+        df['instrument_battery_voltage'] = df['instrument_battery_voltage'].apply(floater)
+    """
+
+
+    
+def calculate_conductance(df):
+    """
+    Calculates conductane or specific conductance depending on what is missing from the data
+    """
+    if ('water_conductivity_mS/cm' in df.columns) and ('water_specific_conductivity_mS/cm' in df.columns):
+        return df
+    elif ('water_conductivity_mS/cm' in df.columns) and ('water_temp_c' in df.columns) and not ('water_specific_conductivity_mS/cm' in df.columns):
+        df['water_specific_conductivity_mS/cm'] = df.apply (_calculate_specific_conductivity,axis=1)
+    elif ('water_specific_conductivity_mS/cm' in df.columns)  and ('water_temp_c' in df.columns) and not ('water_conductivity_mS/cm' in df.columns):
+        df['water_conductivity_mS/cm'] = df.apply (_calculate_conductivity,axis=1)
+    return df
 
 def calculate_salinity_psu(df):
     """
@@ -62,7 +104,19 @@ def _calculate_do_mgl(row):
     p2 =2140.7*tk**2-10.754*tk+0.017674
     dosat =0.01*2.71828182845904**(p1-row['water_salinity_PSU']*p2)
     return(row['water_DO_%'] * dosat)
-              
+
+def _calculate_specific_conductivity(row):
+    """ formula from https://in-situ.com/wp-content/uploads/2015/01/Specific-Conductance-as-an-Output-Unit-for-Conductivity-Readings-Tech-Note.pdf
+    """
+    r = 0.0191
+    return  (row['water_conductivity_mS/cm']/ (1.0 + (r * (row['water_temp_c'] - 25.0))))
+
+def _calculate_conductivity(row):
+    """ formula from https://in-situ.com/wp-content/uploads/2015/01/Specific-Conductance-as-an-Output-Unit-for-Conductivity-Readings-Tech-Note.pdf
+    """
+    r = 0.0191
+    return  (row['water_specific_conductivity_mS/cm'] * (1.0 + (r * (row['water_temp_c'] - 25.0))))
+        
 def autodetect(filename):
     """
     Tests file for supported sonde filetypes.  
@@ -107,7 +161,6 @@ def autodetect(filename):
             filetype =  'unsupported_binary'  
             fid.close()
             return filetype
-        
         if lines[0].lower().find('greenspan') != -1:
             filetype =  'greenspan_csv'
         elif lines[0].lower().find('minisonde4a') != -1:
@@ -132,6 +185,8 @@ def autodetect(filename):
             filetype =  'ysi_ascii'
         elif (lines[0].find("Date") > -1 )and (lines[1].find("M/D/Y") > -1 )and (lines[0].find("\t") > -1):
             filetype =  'ysi_tab'
+        elif lines[0].find("DateTime") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
+            filetype =  'ysi_csv_datetime'
         elif lines[0].find("Date") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
             filetype =  'ysi_csv'
         elif lines[2].find('Manta') > -1:

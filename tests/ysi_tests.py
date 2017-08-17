@@ -82,7 +82,7 @@ def compare_quantity_and_csv_str(quantities, str_list):
 class YSIReaderTestBase():
     def test_ysi_dates_match_csv(self):
         for date_pair in list(zip(self.ysi_reader['datetime_(UTC)'], self.ysi_csv.dates)):
-            assert date_pair[0] == date_pair[1].replace(tzinfo=cdt).astimezone(utc), "%r != %r" % (str(date_pair[0]), str(date_pair[1].replace(tzinfo=cdt).astimezone(utc)))
+            assert date_pair[0] == cdt.localize(date_pair[1]).astimezone(utc), "%r != %r" % (str(date_pair[0]), str(cdt.localize(date_pair[1]).astimezone(utc)))
 
 
 class YSIReader_Test(YSIReaderTestBase):

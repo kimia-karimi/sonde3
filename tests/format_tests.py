@@ -33,11 +33,11 @@ def test_files():
         yield check_autodetect, test_file_config, sonde_file_path
 
         yield check_file, test_file_config, sonde_file_path
-
+"""
         with open(sonde_file_path) as sonde_file_fid:
             print('Testing:', sonde_file_path)
             yield check_file, test_file_config, sonde_file_fid
-
+"""
 
 def check_autodetect(test_file, sonde_file):
     file_format = test_file['header']['format']
@@ -59,10 +59,9 @@ def check_file(test_file, sonde_file):
         tz = cdt
     else:
         tz = cst
-
-    test_sonde = sonde.open_sonde(sonde_file, file_format=file_format,
-                                  tzinfo=tz)
-    check_format_parameters(test_file['format_parameters'], test_sonde)
+    print (sonde_file)
+    test_sonde_metadata, test_sonde = sonde3.sonde(sonde_file, tzinfo=tz)
+    check_format_parameters(test_file['format_parameters'], test_sonde_metadata)
 
     parameters = test_file['data']['parameters']
     units = test_file['data']['units']
@@ -104,6 +103,7 @@ def check_values_match(test_data, parameters, units, test_sonde):
 
 
 def check_format_parameters(format_parameters, test_sonde):
+    print (format_parameters, test_sonde)
     for parameter_name, test_value in list(format_parameters.items()):
         if test_value == '':
             continue
@@ -122,7 +122,7 @@ def check_format_parameters(format_parameters, test_sonde):
             sonde_parameter = getattr(test_sonde, parameter_name)
 
         else:
-            assert parameter_name in test_sonde.format_parameters, \
+            assert parameter_name in test_sonde.columns, \
                    "format parameter '%s' not found in " \
                    "test_sonde.format_parameters" % parameter_name
             sonde_parameter = test_sonde.format_parameters[parameter_name]

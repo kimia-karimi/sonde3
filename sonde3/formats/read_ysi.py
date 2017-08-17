@@ -7,6 +7,7 @@ import io, itertools
 import csv
 import warnings
 import ntpath
+import time
 
 def read_ysi(ysi_file, tzinfo=None):
         """
@@ -55,6 +56,7 @@ def read_ysi(ysi_file, tzinfo=None):
             localtime = tzinfo
         else:
             localtime = pytz.timezone('US/Central')
+
             warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
         package_directory = os.path.dirname(os.path.abspath(__file__))
         YSI_DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/ysi_definitions.csv"))
@@ -65,8 +67,11 @@ def read_ysi(ysi_file, tzinfo=None):
         data = []
         parameters = [] 
         parameters.append("datetime_(UTC)")
-        ysi_epoch_in_seconds = 446962140 #time began for YSI on 2004/03/01 !!
-        
+        #ysi_epoch_in_seconds = 446962140 #time began for YSI on 2004/03/01 !!
+        #ysi_epoch_in_seconds = 446969340 #time began for YSI on 2004/03/01 !!
+        #ysi_epoch_in_seconds = 446968800
+        ysi_epoch = datetime(year=1984, month=3, day=1, tzinfo=pytz.timezone('US/Eastern'))
+        ysi_epoch_in_seconds = time.mktime(ysi_epoch.timetuple())
         record_type = fid.read(1)  #read single 8-bit byte
         while record_type:
             if record_type == b'A':  #sonde file metadata
@@ -109,8 +114,12 @@ def read_ysi(ysi_file, tzinfo=None):
                 fmt_size = struct.calcsize(fmt)
                 while record_type == b'D':  #repeat importing rows until EOF
                     row = list(struct.unpack(fmt, fid.read(fmt_size)))
-                    row[0] = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds)\
-                            .replace(tzinfo=localtime).astimezone(utc)
+                    test = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds).replace(tzinfo=localtime)
+                    if bool(test.dst()):
+                        print ("yes")
+                        row[0] = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds + 540 - 9600).replace(tzinfo=localtime).astimezone(utc)
+                    else:    
+                        row[0] = datetime.fromtimestamp(row[0] + ysi_epoch_in_seconds + 540).replace(tzinfo=localtime).astimezone(utc)
                     data.append(row)
                     record_type = fid.read(1) 
                 #the file has ended, close and return    
@@ -129,14 +138,18 @@ def read_ysi(ysi_file, tzinfo=None):
         return metadata, pd.DataFrame.from_records(data, columns=parameters)
 
 
-def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None):
+def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
     """
     Method reads a text based YSI sonde instrument file and returns a pandas DataFrame for the table and metadata.
 
     Method makes many assumptions about the standard formatting of the text file.
-    Method assumes the file is of YSI origin, has at least two columns, and the first two colums are
-    the Date and Time.  A separator must be passed to the function as the deliminator YSI uses
+    Method assumes the file is of YSI origin, has at least two columns.
+
+    A separator must be passed to the function as the deliminator YSI uses
     can be different.  (Somtimes tab separated, comma, or a series of spaces)
+
+    The function assumes that ['date','time'] are in column 0 and 1.  However, passing the index for datetimecols will
+    allow the support of alternate datetime parsing with pandas.
     """
     package_directory = os.path.dirname(os.path.abspath(__file__))
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
@@ -148,13 +161,17 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None):
         localtime = pytz.timezone('US/Central')
         warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
 
+    if datetimecols is None:
+        datetimecols = [0,1]
+        
     metadata =  pd.DataFrame(data = [['YSI', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Model', 'Station'])
     head, tail = ntpath.split(ysi_file)
     metadata = metadata.set_value([0], 'Filename' , tail)
-    DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python', header=[0,1],na_values=['','na'])
+    DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, engine='python', header=[0,1],na_values=['','na'])
 
     #convert timezone to UTC and insert at front column
-    DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
+    #DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
+    DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
 
     #this submethod will match our read columns (tuple) to the master DEFINITION file
