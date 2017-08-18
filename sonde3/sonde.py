@@ -6,7 +6,7 @@ import warnings
 
 
 
-def sonde(filename, tzinfo=None, remove_invalids=False):
+def sonde(filename, tzinfo=None, remove_invalids=True):
     """
     Convert an instrument file to pandas DataFrame
 
@@ -32,9 +32,11 @@ def sonde(filename, tzinfo=None, remove_invalids=False):
 
     if not df.empty:
         if remove_invalids is True:
+            df = calculate_floats(df)
             df = _remove_invalids(df)
+        else:
+            df = calculate_floats(df)
             
-        df = calculate_floats(df)
         df = calculate_conductance(df)
         df = calculate_salinity_psu(df)
         df = calculate_do_mgl(df)
@@ -67,15 +69,18 @@ def calculate_floats(df):
 
 def _remove_invalids(df):
     #multiplies to remove negative values
-    zerocheck = lambda x: x*(x>0)
+    removezero = lambda x: x*(x>0)
 
-    #split set
-    datetime = df.iloc[:,0]
-    data = df.iloc[:,1:]
-    data = data.applymap(zerocheck)
+    columns = ['water_depth_m_nonvented', 'water_conductivity_mS/cm', \
+               'water_DO_%','water_specific_conductivity_mS/cm']
+    for column in columns:
+        if column not in df.columns:
+            continue
+        df[column] = df[column].apply(removezero)
+        
+    return df
+
     
-
-    return pd.concat([datetime,data], axis=1)
 
     
 def calculate_conductance(df):
@@ -145,6 +150,8 @@ def autodetect(filename):
     if is_binary_string(open(filename, 'rb').read(1024)):
         fid = open(filename, 'rb')
         lines = [fid.readline() for i in range(3)]
+        #lines = list(fid)
+        #print (type(lines))
         if lines[0].find(b'PDF') != -1:
             filetype =  'pdf'             
         if lines[0][0] == 65:
@@ -183,6 +190,8 @@ def autodetect(filename):
             filetype =  'unsupported_binary'  
             fid.close()
             return filetype
+        
+        
         if lines[0].lower().find('greenspan') != -1:
             filetype =  'greenspan_csv'
         elif lines[0].lower().find('minisonde4a') != -1:
