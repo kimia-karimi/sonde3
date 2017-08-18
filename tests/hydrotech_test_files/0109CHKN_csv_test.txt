@@ -5,23 +5,23 @@ format = 'hydrotech_csv'
 
 [format_parameters]
 # log file name: if present in file else leave blank
-log_file_name = '0109chkn'
+Filename = '0109chkn'
 
 # timezone: if present in file else leave blank
 tz = 
 
 # site name: if present in file else leave blank
-site_name = 
+Station = 
 
 # instrument serial number, if present in file else leave blank
-serial_number = '22767'
+Instrument_Serial_Number = '22767'
 
 # datetimes in fmt MM/DD/YYYY hh:mm:ss, if datetimes not provided in
 # file header then use first and last line in data
 # datetime provided in first line of data
-setup_time = '01/13/2009 16:13:31'
-start_time = '01/14/2009 07:00:00'
-stop_time = '01/14/2010 07:00:00'
+Deployment_Setup_Time = '01/13/2009 16:13:31'
+Deployment_Start_Time = '01/14/2009 07:00:00'
+Deployment_Stop_Time = '01/14/2010 07:00:00'
 
 
 [data]

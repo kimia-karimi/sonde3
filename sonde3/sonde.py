@@ -32,40 +32,14 @@ def sonde(filename, tzinfo=None, remove_invalids=True):
 
     if not df.empty:
         if remove_invalids is True:
-            df = calculate_floats(df)
             df = _remove_invalids(df)
-        else:
-            df = calculate_floats(df)
-            
+
         df = calculate_conductance(df)
         df = calculate_salinity_psu(df)
         df = calculate_do_mgl(df)
     
     return metadata, df
 
-def calculate_floats(df):
-    #converts rows to floats
-    floater = lambda x: float(x)
-
-    #split set
-    datetime = df.iloc[:,0]
-    data = df.iloc[:,1:]
-    data = data.applymap(floater)
-    
-
-    return pd.concat([datetime,data], axis=1)
-    
-
-    """
-    if ('water_specific_conductivity_mS/cm' in df.columns):
-        df['water_specific_conductivity_mS/cm'] = df['water_specific_conductivity_mS/cm'].apply(floater)
-    if ('water_temp_c' in df.columns):
-        df['water_temp_c'] = df['water_temp_c'].apply(floater)
-    if ('water_depth_m_nonvented' in df.columns):
-        df['water_depth_m_nonvented'] = df['water_depth_m_nonvented'].apply(floater)
-    if ('instrument_battery_voltage' in df.columns):
-        df['instrument_battery_voltage'] = df['instrument_battery_voltage'].apply(floater)
-    """
 
 def _remove_invalids(df):
     #multiplies to remove negative values

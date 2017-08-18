@@ -118,6 +118,7 @@ def check_format_parameters(format_parameters, test_sonde):
             assert test_sonde.empty, "empty DataFrame"
             return
         
+        
         # parameters on the test_sonde object itself; historically, these
         # used to be in the format_parameters dict but now they are on
         # the test_sonde object and it's not worth the effort to rearrange
@@ -129,13 +130,13 @@ def check_format_parameters(format_parameters, test_sonde):
             assert hasattr(test_sonde, parameter_name), \
                    "format parameter '%s' not found in " \
                    "test_sonde" % parameter_name
-            sonde_parameter = getattr(test_sonde, parameter_name)
+            #sonde_parameter = getattr(test_sonde, parameter_name)
 
         else:
             assert parameter_name in test_sonde.columns, \
                    "format parameter '%s' not found in " \
                    "test_sonde.columns" % parameter_name
-            sonde_parameter = test_sonde.format_parameters[parameter_name]
+            #sonde_parameter = test_sonde.format_parameters[parameter_name]
 
         # if we are testing a datetime value
         if re.match('\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}', test_value):

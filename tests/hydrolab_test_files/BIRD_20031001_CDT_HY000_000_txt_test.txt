@@ -5,7 +5,7 @@ format = 'hydrolab_csv'
 
 [format_parameters]
 # log file name: if present in file else leave blank
-log_file_name = 'brd_03sep'
+Filename = 'brd_03sep'
 
 # timezone: if present in file else leave blank
 tz = 

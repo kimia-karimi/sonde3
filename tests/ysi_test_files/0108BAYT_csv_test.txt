@@ -5,7 +5,7 @@ format = 'ysi_csv_datetime'
 
 [format_parameters]
 # log file name: if present in file else leave blank
-log_file_name = 
+Filename = 
 
 # timezone: if present in file else leave blank
 tz = 

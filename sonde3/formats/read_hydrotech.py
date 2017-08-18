@@ -24,7 +24,8 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
 
     DF = pd.read_csv(hydrotech_file, sep=delim, parse_dates={'Datetime_(ascii)': [0,1]},\
-                      na_values=['','na', '999999', '#'], engine='c',encoding='cp1252', names = list(range(0,20)))
+                      na_values=['','na', '999999', '#'], engine='c',encoding='cp1252', \
+                      names = list(range(0,20)))
 
     #drop the end of the file messages if exist    
     droplist = ['Power loss', 'Late probe', 'Recovery finished']
@@ -68,7 +69,8 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
                 DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
                 
     raw_metadata = pd.read_csv(hydrotech_file, sep=delim, header=None,nrows=10)
-    metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Date','Filename'))
+    metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Time', \
+                                     'Deployment_Start_Time', 'Deployment_Stop_Time','Filename'))
     metadata = metadata.append([{'Manufacturer' : 'Hydrotech'}])
     head, tail = ntpath.split(hydrotech_file)
     metadata = metadata.set_value([0], 'Filename' , tail)
@@ -79,6 +81,18 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
         elif i == 1:
             metadata = metadata.set_value([0], 'Station',  row[0].split(' : ')[1])
         elif i == 2:
-            metadata = metadata.set_value([0], 'Deployment_Setup_Date',  datetime.strptime(row[0].split(' : ')[1], '%m%d%y'))
-              
+            metadata = metadata.set_value([0], 'Deployment_Setup_Time',  datetime.strptime(row[0].split(' : ')[1], '%m%d%y'))
+
+    #now convert all data rows to floats...
+    #move this to separate function if I have to do this more than for hydrotechs
+    floater = lambda x: float(x)
+
+    #split set
+    dt_column = DF.iloc[:,0]
+    data = DF.iloc[:,1:]
+    data = data.applymap(floater)
+    
+
+    DF = pd.concat([dt_column,data], axis=1)
+
     return metadata, DF

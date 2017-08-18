@@ -139,7 +139,7 @@ def read_ysi(ysi_file, tzinfo=None):
 
         #something went wrong with file parsing, close and return
         fid.close()
-        print ("Warning: empty dataframe in file <%s>" % ysi_file)
+        warnings.warn ("Warning: binary read parsing error in file <%s> \n File may not be complete." % ysi_file, stacklevel=2)
         return metadata, pd.DataFrame.from_records(data, columns=parameters)
 
 
