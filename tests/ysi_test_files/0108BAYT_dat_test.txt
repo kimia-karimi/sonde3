@@ -41,7 +41,7 @@ Deployment_Stop_Time = '03/13/2008 14:00:33'
 # 'water_depth_non_vented' : Water Surface Elevation (No Atm Pressure Correction)
 # 'water_depth_vented' : Water Surface Elevation (Atm Pressure Corrected)
 # These are the header of parameters = ["Date","Time","Temp","SpCond","Depth","ODO%","Battery","Cond","ODO Conc","Salinity"]
-parameters = ['water_temperature','water_depth_non_vented','water_dissolved_oxygen_percent_saturation','instrument_battery_voltage','water_electrical_conductivity']
+parameters = ['water_temp_c','water_depth_non_vented','water_dissolved_oxygen_percent_saturation','instrument_battery_voltage','water_electrical_conductivity']
 
 
 # units (comma delimited, in column order)

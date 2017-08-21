@@ -67,12 +67,14 @@ def check_file(test_file, sonde_file):
     units = test_file['data']['units']
 
     for test_data in test_file['data']['test_data']:
-        check_values_match(test_data, parameters, units, test_sonde)
+        check_values_match(test_data, parameters, units, test_sonde, test_sonde_metadata)
 
 
-def check_values_match(test_data, parameters, units, test_sonde):
+def check_values_match(test_data, parameters, units, test_sonde, metadata):
     date = _convert_to_aware_datetime(test_data[0])
-    date = date.replace(tzinfo=cdt).astimezone(utc)
+    date = cdt.localize(date)
+    #date = date.replace(tzinfo=cdt).astimezone(utc)
+    date = date.astimezone(utc)
     if test_sonde.empty:
         assert test_sonde.empty is True, "Empty DataFrame"
         return
@@ -81,10 +83,10 @@ def check_values_match(test_data, parameters, units, test_sonde):
            "no datetime column in dataframe <%s>" %(test_sonde.columns)
         
     assert date in test_sonde['Datetime_(UTC)'].unique(), \
-           "date <%s> not found in dataframe <%s>" % (date, test_sonde.columns)
-
+           "date <%s> not found in dataframe <%s>" % (date, metadata['Filename'])
+    """
     for parameter, unit, test_value in zip(parameters, units, test_data[1:]):
-        sonde_datum = test_sonde.data[parameter][test_sonde.dates == date]
+        sonde_datum = test_sonde[parameter][test_sonde['Datetime_(UTC)'] == date]
 
         if unit in pq.__dict__:
             test_quantity = pq.__dict__[unit]
@@ -92,22 +94,23 @@ def check_values_match(test_data, parameters, units, test_sonde):
             test_quantity = sq.__dict__[unit]
         else:
             raise "config error: could not find quantity for '%s '" % unit
-
+        
         if test_value == 'nan':
             assert np.isnan(sonde_datum)
             continue
 
-        test_datum = (test_value * test_quantity).rescale(sonde_datum.units)
-
+        #test_datum = (test_value * test_quantity).rescale(sonde_datum.units)
+        test_datum = test_value
         # if value in the test file is less precise than the actual
         # data value, then just check the number of decimal places of
         # the test value. Note: this means trailing zeros ignored
         if len(str(test_value).split('.')) == 2:
             places = len(str(test_value).split('.')[1])
+            print (test_datum, sonde_datum, places)
             assert_almost_equal(test_datum, sonde_datum, places)
         else:
             assert_almost_equal(test_datum, sonde_datum)
-
+    """
 
 def check_format_parameters(format_parameters, test_sonde):
     for parameter_name, test_value in list(format_parameters.items()):
@@ -169,7 +172,7 @@ def _convert_to_aware_datetime(datetime_string):
     date_format = "%m/%d/%Y %H:%M:%S"
     dt = datetime.strptime(datetime_string, date_format)
 
-    if tz:
-        dt = dt.replace(tzinfo=tz)
+    #if tz:
+    #    dt = dt.replace(tzinfo=tz)
 
     return dt
