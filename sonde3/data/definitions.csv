@@ -5,6 +5,7 @@ Battery,V,instrument_battery_voltage
 Cond,mS/cm,water_conductivity_mS/cm
 SpCond,mS/cm,water_specific_conductivity_mS/cm
 ODO%,%,water_DO_%
+ODOsat,%,water_DO_%
 ODO Conc,mg/L,water_DO_mgl
 Salinity,ppt,water_salinity_PSU
 TDS,g/L,water_tds_g/L
@@ -18,5 +19,8 @@ DOsat,%,water_DO_%
 Dep25,meters,water_depth_m_nonvented
 IBatt,Volts,instrument_battery_voltage
 Temp,øC,water_temp_c
+Turb,NTU,water_turbidity_NTU
+ORP,mV,water_ORP_mV
+Turbid+,NTU,water_turbidity_NTU
 
 

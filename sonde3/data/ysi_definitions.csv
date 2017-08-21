@@ -16,9 +16,9 @@ Salinity,ppt,_SalPPT,2
 DO,%,water_DO_%,1
 DO,mg/L,water_DO_mg,2
 DO,uMol/L,_DOuMol,2
-pH,mV,water_ph_mv,1
-pH,pH,water_ph,2
-ORP,mV,_ORPmV,0
+pH,mV,water_pH_mV,1
+pH,pH,water_pH,2
+ORP,mV,water_ORP_mV,0
 Pressure-Abs,psia,water_pressure_abs,2
 Pressure-Gau,psig,_Prespsig,2
 Depth,meters,water_depth_m_nonvented,3
@@ -36,7 +36,7 @@ Density,lb/ft3,_DensLb/ft3,2
 Current_Speed,cm/sec,_CurSpCm/s,2
 Current_Speed,knots,_CurSpKnot,2
 Current_Dir,degrees,_CurDirDeg,1
-Turbidity,NTU,_TurNTU,2
+Turbidity,NTU,water_turbidity_NTU,2
 Rainfall,cm,_Raincm,4
 Rainfall,inches,_Rainin,4
 Solar_Rad,c/cm2/m,_Solar,3
@@ -95,7 +95,7 @@ Barometer, kPa,_BPkPa,2
 Wind_Speed, km/h,_WSkm/h,1
 Resistivity, Ohm.cm,_ROcm,1
 TDS, Kg/L,_TDSKg/L,3
-DO_Charge, DOchrg,_DOchrg,0
+DO_Charge, DOchrg,DO_Chrg,0
 Chloroform, ppb,_CHLFMppb,1
 Ground, Hertz,_GroundHz,3
 Full_Scale, Hertz,_FScaleHz,3
@@ -192,7 +192,7 @@ GPS_Variation,degrees,_GPSVarDeg,1
 TSS,mg/L,_TSSmg/L,1
 TSS,g/L,_TSSg/L,3
 TSS,%,_TSS%,4
-Chlorophyll,ug/L,_Chlug/L,1
+Chlorophyll,ug/L,water_chorophyll-a_ug/L,1
 %Fluorescence,%FS,_Fluo%FS,1
 Optic,count,_OpticCnt,0
 Latitude,DDdddd,_LatDDdd,1
@@ -202,7 +202,7 @@ PCB_Temp,none,_PCBtemp,1
 DO%_Local,%Local,water_DO_%,1
 PAR1,uMoles,_Par1,1
 PAR2,uMoles,_PAR2,1
-Turbidity+,NTU,_TurbNTU,2
+Turbidity+,NTU,water_turbidity_NTU,2
 Rhodamine,ug/L,_RhodUg/L,2
 DO_T1,none,_DOT1,1
 DO_PE1,none,_DOPE1,1

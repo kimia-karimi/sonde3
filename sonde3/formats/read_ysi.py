@@ -67,9 +67,6 @@ def read_ysi(ysi_file, tzinfo=None):
         data = []
         parameters = [] 
         parameters.append("Datetime_(UTC)")
-        #ysi_epoch_in_seconds = 446962140 #time began for YSI on 2004/03/01 !!
-        #ysi_epoch_in_seconds = 446969340 #time began for YSI on 2004/03/01 !!
-        #ysi_epoch_in_seconds = 446968800
         ysi_epoch = datetime(year=1984, month=3, day=1, tzinfo=pytz.timezone('US/Eastern'))
         ysi_epoch_in_seconds = time.mktime(ysi_epoch.timetuple())
         record_type = fid.read(1)  #read single 8-bit byte
@@ -108,7 +105,7 @@ def read_ysi(ysi_file, tzinfo=None):
                 #check master definition list to see if parameter is verified
                 submatch = DEFINITIONS[DEFINITIONS['standard'].str.contains(parameters[-1])]
                 if submatch.empty:
-                    warnings.warn("Could not match parameter <%s> to definition file" %str(parameters[-1]) , stacklevel=2)
+                    warnings.warn("<%s> Could not match parameter <%s> to definition file" % (str(metadata['Filename'])  ,str(parameters[-1])) , stacklevel=2)
             elif record_type == b'D':  #actual data rows
                 fmt = '<l' + str(num_params) + 'f'  #little endian, long (our datetime), variable number floats (our data rows)
                 fmt_size = struct.calcsize(fmt)
@@ -169,13 +166,10 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
     if datetimecols is None:
         datetimecols = [0,1]
         
-    metadata =  pd.DataFrame(data = [['YSI', '', '', '', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Model', 'Station', 'Deployment_Setup_Time', 'Deployment_Start_Time', 'Deployment_Stop_Time'])
-    head, tail = ntpath.split(ysi_file)
-    metadata = metadata.set_value([0], 'Filename' , tail)
+
     DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, engine='python', header=[0,1],na_values=['','na'])
 
     #convert timezone to UTC and insert at front column
-    #DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
 
@@ -184,7 +178,7 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
             
         submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
         if submatch.empty:
-            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
+            warnings.warn("Could not match parameter <%s> to definition file in <%s>" %(str(col), str(metadata['Filename'])), stacklevel=2)
      
         if "Unnamed" not in col[1]:  #check for a null value in the units column
             match = submatch[submatch['unit'].str.contains(col[1])]
@@ -194,4 +188,13 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
         if not match.empty:
                 DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
 
+    #create metadata
+    metadata =  pd.DataFrame(data = [['YSI', '', '', '', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Model', \
+                                                                                'Station', 'Deployment_Setup_Time', 'Deployment_Start_Time', \
+                                                                                'Deployment_Stop_Time'])
+    head, tail = ntpath.split(ysi_file)
+    metadata = metadata.set_value([0], 'Filename' , tail)
+    metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
+    metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
+    
     return metadata, DF

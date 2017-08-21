@@ -26,7 +26,7 @@ def sonde(filename, tzinfo=None, remove_invalids=True):
     elif file_type is 'hydrotech_csv':
         metadata, df = formats.read_hydrotech(filename,  tzinfo,',') 
     else:
-        warnings.warn("File format <%s> not supported" %str(file_type) , stacklevel=2)
+        warnings.warn("File format <%s> not supported in <%s>" %(str(file_type), str(filename)) , stacklevel=2)
         
         return pd.DataFrame(), pd.DataFrame()
 
@@ -193,6 +193,8 @@ def autodetect(filename):
         elif lines[0].find("DateTime") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
             filetype =  'ysi_csv_datetime'
         elif lines[0].find("Date") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
+            filetype =  'ysi_csv'
+        elif lines[0].find("Date") > -1 and lines[1].find("Y/M/D") > -1 and lines[0].find(","):
             filetype =  'ysi_csv'
         elif lines[2].find('Manta') > -1 or lines[1].find('\xb0') > -1 or \
            lines[0].find('Start time : ') > -1:
