@@ -89,12 +89,13 @@ def read_ysi(ysi_file, tzinfo=None):
                 site_name = site_name.strip(b'\x00').decode("utf-8") 
                 serial_number = serial_number.strip(b'\x00').decode("utf-8") 
                 
-                metadata = pd.DataFrame([(instr_type,"YSI",system_sig,prog_ver,serial_number,site_name,logging_interval,begin_log_time,
-                                       first_sample_time, "", "", "")], columns=['Instrument_Type', 'Manufacturer', 'System_Signal',
-                                        'Program_Version','Instrument_Serial_Number','Station','Logging_Interval',
-                                        'Begin_Log_Time_(UTC)', 'First_Sample_Time_(UTC)', 'Deployment_Setup_Time',  'Deployment_Start_Time', 'Deployment_Stop_Time'])
+                metadata = pd.DataFrame([(instr_type,"YSI",serial_number,site_name, \
+                                        "")], columns=['Model', 'Manufacturer', \
+                                        'Instrument_Serial_Number','Station', \
+                                        'Deployment_Setup_Time'])
                 head, tail = ntpath.split(ysi_file)
                 metadata = metadata.set_value([0], 'Filename' , tail)
+
             elif record_type == b'B':  #row headers of the data
                 num_params = num_params + 1
                 fmt = '<hhHff'  #little endian: short,short,ushort,float,float
@@ -126,7 +127,10 @@ def read_ysi(ysi_file, tzinfo=None):
                     record_type = fid.read(1) 
                 #the file has ended, close and return    
                 fid.close()
-                return metadata, pd.DataFrame.from_records(data, columns=parameters)
+                DF = pd.DataFrame.from_records(data, columns=parameters)
+                metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
+                metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
+                return metadata, DF
             
             else:        
                 print('Error: Unknown binary formatting found in: <%s>' % ysi_file)
@@ -137,6 +141,7 @@ def read_ysi(ysi_file, tzinfo=None):
         #something went wrong with file parsing, close and return
         fid.close()
         warnings.warn ("Warning: binary read parsing error in file <%s> \n File may not be complete." % ysi_file, stacklevel=2)
+
         return metadata, pd.DataFrame.from_records(data, columns=parameters)
 
 
