@@ -22,7 +22,6 @@ setup(
     package_data={'': ['data/ysi_param.def']},
     platforms='any',
     install_requires=[
-        'numpy>=1.12.1',
         'pandas>=0.20.1',
         'pytz>=2010o',
         'seawater>=3.3.4',
