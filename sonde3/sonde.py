@@ -168,7 +168,7 @@ def autodetect(filename):
         
         if lines[0].lower().find('greenspan') != -1:
             filetype =  'greenspan_csv'
-        elif lines[0].lower().find('minisonde4a') != -1:
+        elif lines[0].lower().find('minisonde') != -1:
             filetype =  'hydrotech_csv'
         elif lines[0].lower().find('log file name') != -1:
             filetype =  'hydrolab_csv'
