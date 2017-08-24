@@ -84,7 +84,7 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
         elif i == 1:
             metadata = metadata.set_value([0], 'Station',  row[0].split(' : ')[1])
         elif i == 2:
-            metadata = metadata.set_value([0], 'Deployment_Setup_Time',  datetime.strptime(row[0].split(' : ')[1], '%m%d%y').astimezone(utc))
+            metadata = metadata.set_value([0], 'Deployment_Setup_Time',  localtime.localize(datetime.strptime(row[0].split(' : ')[1], '%m%d%y')).astimezone(utc))
 
     #now convert all data rows to floats...
     #move this to separate function if I have to do this more than for hydrotechs

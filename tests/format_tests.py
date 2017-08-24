@@ -5,7 +5,7 @@ import re
 from configobj import ConfigObj
 from nose.tools import assert_almost_equal, eq_, set_trace
 import numpy as np
-import quantities as pq
+
 import pytz
 import sonde3
 #from sonde import quantities as sq

@@ -17,7 +17,7 @@ import pytz
 import nose
 from nose.tools import assert_almost_equal, set_trace
 import numpy as np
-import quantities as pq
+
 
 from sonde3 import sonde
 #from sonde import quantities as sq
