@@ -125,10 +125,12 @@ def autodetect(filename):
         fid = open(filename, 'rb')
         lines = [fid.readline() for i in range(3)]
         #lines = list(fid)
-        #print (type(lines))
+        #print (lines[0][0], lines[0])
         if lines[0].find(b'PDF') != -1:
             filetype =  'pdf'             
         if lines[0][0] == 65:
+            filetype =  'ysi_binary'
+        elif lines[0][0] == 'A':
             filetype =  'ysi_binary'
         elif lines[0].find(b'MacroCTD') != -1:
             filetype =  'macroctd_binary'
