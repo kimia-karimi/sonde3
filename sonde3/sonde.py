@@ -6,7 +6,7 @@ import warnings
 
 
 
-def sonde(filename, tzinfo=None, remove_invalids=True):
+def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     """
     Convert an instrument file to pandas DataFrame
 
@@ -37,7 +37,38 @@ def sonde(filename, tzinfo=None, remove_invalids=True):
         df = calculate_conductance(df)
         df = calculate_salinity_psu(df)
         df = calculate_do_mgl(df)
-    
+
+
+        if twdbparams:
+            #create a new index.  Pandas does not use mutable index's and
+            #makes this a real pain.
+            newcolumns = []
+            for col in df.columns:
+                if 'water_depth_m_nonvented' in col:
+                    newcolumns.append('water_depth_nonvented')
+                elif 'water_depth_m_vented' in col:    
+                    newcolumns.append('water_depth_vented')
+                elif 'water_specific_conductivity_mS/cm' in col:    
+                    newcolumns.append(  'water_specific_conductance')
+                elif 'water_conductivity_mS/cm' in col:    
+                    newcolumns.append('water_electrical_conductivity')
+                elif 'water_DO_mgl' in col:    
+                    newcolumns.append(  'water_dissolved_oxygen_concentration')
+                elif 'water_DO_%' in col:    
+                    newcolumns.append('water_dissolved_oxygen_percent_saturation')
+                elif 'water_temp_c' in col:    
+                    newcolumns.append( 'water_temperature')
+                elif 'water_salinity_PSU' in col:    
+                    newcolumns.append('seawater_salinity' ) 
+                elif 'water_turbidity_NTU' in col:    
+                    newcolumns.append( 'water_turbidity')
+                elif 'water_chorophyll-a_ug/L' in col:    
+                    newcolumns.append( 'chlorophyll_a' )   
+                else:
+                    newcolumns.append(col)
+                                        
+            df.columns = newcolumns
+                
     return metadata, df
 
 
