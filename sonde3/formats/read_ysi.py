@@ -43,11 +43,15 @@ def read_ysi(ysi_file, tzinfo=None):
         :type tzinfo: `datetime.tzinfo`
         :returns:  `pandas.DataFrame`, `Pandas.DataFrame`    
         """
-        try:
-            fid = open(ysi_file, 'rb')
-        except:
-            print("Error: Could not open file <%s> \n" % ysi_file)
-            raise
+        if hasattr(filename, "read"):
+            fid = filename
+            fid.seek(0)
+        else:
+            try:
+                fid = open(ysi_file, 'rb')
+            except:
+                print("Error: Could not open file <%s> \n" % ysi_file)
+                raise
       
         
         
