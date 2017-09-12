@@ -44,7 +44,7 @@ def read_ysi(ysi_file, tzinfo=None):
         :returns:  `pandas.DataFrame`, `Pandas.DataFrame`    
         """
         if hasattr(ysi_file, "read"):
-            fid = filename
+            fid = ysi_file
             fid.seek(0)
         else:
             try:
