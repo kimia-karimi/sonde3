@@ -154,10 +154,9 @@ def autodetect(filename):
     is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
     if isinstance(data_file, str):
-            print ("in here")
-            fid = open(filename,  'rb')
-        else:
-            fid = filename
+        fid = open(filename,  'rb')
+    else:
+        fid = filename
     
     if is_binary_string(fid.read(1024)):
         fid = open(filename, 'rb')
