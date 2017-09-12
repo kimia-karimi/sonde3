@@ -161,7 +161,12 @@ def autodetect(filename):
         fid = filename
     else:
         fid = open(filename,  'rb')
+
+    #is_binary_string(open(filename, 'rb').read(1024)):
+
+        
     if is_binary_string(fid.read(1024)):
+        fid.seek(0)
         lines = [fid.readline() for i in range(3)]
         #lines = list(fid)
         #print (lines[0][0], lines[0])
