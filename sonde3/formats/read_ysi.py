@@ -97,9 +97,13 @@ def read_ysi(ysi_file, tzinfo=None):
                                         "")], columns=['Model', 'Manufacturer', \
                                         'Instrument_Serial_Number','Station', \
                                         'Deployment_Setup_Time'])
-                head, tail = ntpath.split(ysi_file)
-                metadata = metadata.set_value([0], 'Filename' , tail)
-
+                
+                if hasattr(ysi_file, "__getitem__"):
+                        head, tail = ntpath.split(ysi_file)
+                        metadata = metadata.set_value([0], 'Filename' , tail)
+                else:
+                        metadata = metadata.set_value([0], 'Filename' , ysi_file.filename)
+                        
             elif record_type == b'B':  #row headers of the data
                 num_params = num_params + 1
                 fmt = '<hhHff'  #little endian: short,short,ushort,float,float
