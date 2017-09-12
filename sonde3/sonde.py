@@ -154,7 +154,7 @@ def autodetect(filename):
     is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
     print (type(filename), filename)
-    if isinstance(filename, StringIO.StringIO):
+    if isinstance(filename, StringIO):
         fid = filename
     else:
         fid = open(filename,  'rb')
