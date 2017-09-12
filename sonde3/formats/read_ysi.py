@@ -43,7 +43,7 @@ def read_ysi(ysi_file, tzinfo=None):
         :type tzinfo: `datetime.tzinfo`
         :returns:  `pandas.DataFrame`, `Pandas.DataFrame`    
         """
-        if hasattr(filename, "read"):
+        if hasattr(ysi_file, "read"):
             fid = filename
             fid.seek(0)
         else:
