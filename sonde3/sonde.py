@@ -3,7 +3,8 @@ import pandas as pd
 import os
 import seawater
 import warnings
-from StringIO import StringIO
+
+
 
 
 def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
@@ -154,7 +155,7 @@ def autodetect(filename):
     is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
     print (type(filename), filename)
-    if isinstance(filename, StringIO):
+    if hasattr(filename, "read"):
         fid = filename
     else:
         fid = open(filename,  'rb')
