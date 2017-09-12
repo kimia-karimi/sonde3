@@ -152,7 +152,14 @@ def autodetect(filename):
     # Will parse for those exceptions specifically where possible.
     textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
     is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
-    if is_binary_string(open(filename, 'rb').read(1024)):
+
+    if isinstance(data_file, str):
+            print ("in here")
+            fid = open(filename,  'rb')
+        else:
+            fid = filename
+    
+    if is_binary_string(fid.read(1024)):
         fid = open(filename, 'rb')
         lines = [fid.readline() for i in range(3)]
         #lines = list(fid)
@@ -186,9 +193,9 @@ def autodetect(filename):
             else:
                 filetype = 'unsupported_csv'
     
-        fid.close()
+        #fid.close()
     else:
-        fid = open(filename, 'r')
+        #fid = open(filename, 'r')
         
         #If fails we read an unsupported binary by mistake, so pass that to caller
         try:
@@ -238,6 +245,6 @@ def autodetect(filename):
         else:
             filetype = 'unsupported_ascii'
             
-    fid.close()
+    #fid.close()
     return filetype
         
