@@ -154,8 +154,6 @@ def autodetect(filename):
     textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
     is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
-    print (type(filename), filename, hasattr(filename,"read"))
-
     
     if hasattr(filename, "read"):
         fid = filename
@@ -202,50 +200,50 @@ def autodetect(filename):
         #fid.close()
     else:
         #fid = open(filename, 'r')
+        fid.seek(0)
         
         #If fails we read an unsupported binary by mistake, so pass that to caller
         try:
             lines = [fid.readline() for i in range(3)]
         except:
             filetype =  'unsupported_binary'  
-            fid.close()
             return filetype
         
         
-        if lines[0].lower().find('greenspan') != -1:
+        if lines[0].lower().find(b'greenspan') != -1:
             filetype =  'greenspan_csv'
-        elif lines[0].lower().find('minisonde') != -1:
+        elif lines[0].lower().find(b'minisonde') != -1:
             filetype =  'hydrotech_csv'
-        elif lines[0].lower().find('log file name') != -1:
+        elif lines[0].lower().find(b'log file name') != -1:
             filetype =  'hydrolab_csv'
-        elif lines[0].lower().find('data file for datalogger.') != -1:
+        elif lines[0].lower().find(b'data file for datalogger.') != -1:
             filetype =  'solinst_csv'
-        elif lines[0].find('Serial_number:')!= -1 and lines[2].find('Project ID:')!= -1:
+        elif lines[0].find(b'Serial_number:')!= -1 and lines[2].find(b'Project ID:')!= -1:
             filetype = 'solinst_csv'
-        elif lines[0].lower().find('pysonde csv format') != -1:
+        elif lines[0].lower().find(b'pysonde csv format') != -1:
             filetype =  'generic_csv'
-        elif lines[0].find('espey') != -1:
+        elif lines[0].find(b'espey') != -1:
             filetype =  'espey_csv'
-        elif lines[0].lower().find('request date') != -1:
+        elif lines[0].lower().find(b'request date') != -1:
             filetype =  'midgewater_csv'
-        elif lines[0].find('the following data have been') != -1:
+        elif lines[0].find(b'the following data have been') != -1:
             filetype =  'lcra_csv'
-        elif lines[0].find('=') != -1:
+        elif lines[0].find(b'=') != -1:
             filetype =  'ysi_text'
-        elif lines[0].find('##YSI ASCII Datafile=') != -1:
+        elif lines[0].find(b'##YSI ASCII Datafile=') != -1:
             filetype =  'ysi_ascii'
-        elif (lines[0].find("Date") > -1 )and (lines[1].find("M/D/Y") > -1 )and (lines[0].find("\t") > -1):
+        elif (lines[0].find(b"Date") > -1 )and (lines[1].find(b"M/D/Y") > -1 )and (lines[0].find(b"\t") > -1):
             filetype =  'ysi_tab'
-        elif lines[0].find("DateTime") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
+        elif lines[0].find(b"DateTime") > -1 and lines[1].find(b"M/D/Y") > -1 and lines[0].find(b","):
             filetype =  'ysi_csv_datetime'
-        elif lines[0].find("Date") > -1 and lines[1].find("M/D/Y") > -1 and lines[0].find(","):
+        elif lines[0].find(b"Date") > -1 and lines[1].find(b"M/D/Y") > -1 and lines[0].find(b","):
             filetype =  'ysi_csv'
-        elif lines[0].find("Date") > -1 and lines[1].find("Y/M/D") > -1 and lines[0].find(","):
+        elif lines[0].find(b"Date") > -1 and lines[1].find(b"Y/M/D") > -1 and lines[0].find(b","):
             filetype =  'ysi_csv'
-        elif lines[2].find('Manta') > -1 or lines[1].find('\xb0') > -1 or \
-           lines[0].find('Start time : ') > -1:
+        elif lines[2].find(b'Manta') > -1 or lines[1].find(b'\xb0') > -1 or \
+           lines[0].find(b'Start time : ') > -1:
             filetype = 'eureka_csv'
-        elif lines[0].lower().find('macroctd') != -1:
+        elif lines[0].lower().find(b'macroctd') != -1:
             filetype = 'macroctd_csv'
             
         else:
