@@ -1,10 +1,15 @@
 parameter,unit,standard
 Temp,C,water_temp_c
+Temp,°C,water_temp_c
 Depth,m,water_depth_m_nonvented
 Battery,V,instrument_battery_voltage
+Cond,µS/cm,water_conductivity_uS/cm
+SpCond,µS/cm,water_specific_conductivity_uS/cm
 Cond,mS/cm,water_conductivity_mS/cm
 SpCond,mS/cm,water_specific_conductivity_mS/cm
 ODO%,%,water_DO_%
+ODO,%,water_DO_%
+ODO,mg/L,water_DO_mgl
 ODOsat,%,water_DO_%
 ODO Conc,mg/L,water_DO_mgl
 Salinity,ppt,water_salinity_PSU
@@ -20,7 +25,11 @@ Dep25,meters,water_depth_m_nonvented
 IBatt,Volts,instrument_battery_voltage
 Temp,øC,water_temp_c
 Turb,NTU,water_turbidity_NTU
+TDS,mg/L,water_tds_mgl
 ORP,mV,water_ORP_mV
+Fault,Code,sonde_fault_code
+Site,Name,station_name
+Cable,Pwr,sonde_cable_power_voltage
 Turbid+,NTU,water_turbidity_NTU
 
 

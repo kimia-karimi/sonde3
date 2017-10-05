@@ -18,6 +18,8 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     
     if file_type is 'ysi_binary':
         metadata, df = formats.read_ysi(filename, tzinfo)
+    elif file_type is 'ysi_exo_csv':
+        metadata, df = formats.read_ysi_exo_csv(filename)
     elif file_type is 'ysi_csv':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',)
     elif file_type is 'ysi_csv_datetime':
@@ -69,7 +71,8 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
                     newcolumns.append(col)
                                         
             df.columns = newcolumns
-                
+
+    df = df.set_index(df['Datetime_(UTC)'])           
     return metadata, df
 
 
@@ -77,8 +80,8 @@ def _remove_invalids(df):
     #multiplies to remove negative values
     removezero = lambda x: x*(x>0)
 
-    columns = ['water_depth_m_nonvented', 'water_conductivity_mS/cm', \
-               'water_DO_%','water_specific_conductivity_mS/cm']
+    columns = ['water_depth_m_nonvented', 'water_conductivity_mS/cm', 'water_specific_conductivity_uS/cm'\
+               'water_DO_%','water_specific_conductivity_mS/cm',  'water_conductivity_uS/cm']
     for column in columns:
         if column not in df.columns:
             continue
@@ -93,6 +96,14 @@ def calculate_conductance(df):
     """
     Calculates conductane or specific conductance depending on what is missing from the data
     """
+    if ('water_conductivity_uS/cm' in df.columns):
+        df['water_conductivity_mS/cm'] = df.apply (_scale_conductivity_us,axis=1)
+        df = df.drop(['water_conductivity_uS/cm'],axis = 1)
+    if ('water_specific_conductivity_uS/cm' in df.columns):
+        df['water_specific_conductivity_mS/cm'] = df.apply (_scale_spconductivity_us,axis=1)
+        df = df.drop(['water_specific_conductivity_uS/cm'],axis = 1)
+        
+    
     if ('water_conductivity_mS/cm' in df.columns) and ('water_specific_conductivity_mS/cm' in df.columns):
         return df
     elif ('water_conductivity_mS/cm' in df.columns) and ('water_temp_c' in df.columns) and not ('water_specific_conductivity_mS/cm' in df.columns):
@@ -112,6 +123,14 @@ def calculate_salinity_psu(df):
 def _calculate_salinity_psu(row):
     
     return  seawater.salt(row['water_conductivity_mS/cm']/ 42.914, row['water_temp_c'], row['water_depth_m_nonvented'] + 10.132501)
+
+def _scale_conductivity_us(row):
+
+    return (row['water_conductivity_uS/cm']/1000.0)
+
+def _scale_spconductivity_us(row):
+
+    return (row['water_specific_conductivity_uS/cm']/1000.0)
     
 def calculate_do_mgl(df):
     """
@@ -165,7 +184,7 @@ def autodetect(filename):
         
     if is_binary_string(fid.read(1024)):
         fid.seek(0)
-        lines = [fid.readline() for i in range(3)]
+        lines = [fid.readline() for i in range(1000)]
         #lines = list(fid)
         #print (lines[0][0], lines[0])
         if lines[0].find(b'PDF') != -1:
@@ -190,12 +209,14 @@ def autodetect(filename):
                     filetype =  'unsupported_xls'
         else:
             if (lines[0].find(b',Greenspan') != -1):
-                filetype = 'greenspan_csv'
+                filetype = 'greenspan_xls'
             elif lines[2].find(b'Manta') > -1 or lines[1].find(b'\xb0') > -1 or \
                    lines[0].find(b'Start time : ') > -1:
-                filetype = 'eureka_csv'
+                filetype = 'eureka_xls'
+            elif(lines[0].find(b'\xdecgf') != -1):
+                filetype = 'YSI_EXO'
             else:
-                filetype = 'unsupported_csv'
+                filetype = 'unsupported_bin'
     
         #fid.close()
     else:
@@ -245,6 +266,8 @@ def autodetect(filename):
             filetype = 'eureka_csv'
         elif lines[0].lower().find(b'macroctd') != -1:
             filetype = 'macroctd_csv'
+        elif lines[0].lower().find(b'kor export file') != -1:
+            filetype = 'ysi_exo_csv'
             
         else:
             filetype = 'unsupported_ascii'

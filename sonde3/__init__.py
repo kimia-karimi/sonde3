@@ -2,6 +2,7 @@ from . import sonde
 from .formats import read_ysi
 from .formats import read_ysi_ascii
 from .formats import read_hydrotech
+from .formats import read_ysi_exo_csv
 from .sonde import sonde
 from .sonde import autodetect
 from .sonde import calculate_salinity_psu
