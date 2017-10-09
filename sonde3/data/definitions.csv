@@ -1,6 +1,6 @@
 parameter,unit,standard
-Temp,C,water_temp_c
-Temp,°C,water_temp_c
+Temp,C,water_temp_C
+Temp,°C,water_temp_C
 Depth,m,water_depth_m_nonvented
 Battery,V,instrument_battery_voltage
 Cond,µS/cm,water_conductivity_uS/cm
@@ -23,7 +23,7 @@ Chlorophyll,ug/L,water_chorophyll-a_ug/L
 DOsat,%,water_DO_%
 Dep25,meters,water_depth_m_nonvented
 IBatt,Volts,instrument_battery_voltage
-Temp,øC,water_temp_c
+Temp,øC,water_temp_C
 Turb,NTU,water_turbidity_NTU
 TDS,mg/L,water_tds_mgl
 ORP,mV,water_ORP_mV
