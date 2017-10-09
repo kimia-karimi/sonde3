@@ -1,6 +1,6 @@
 Name,Unit,Short_Name,Decimal_Places
 None,none,_none_,0
-Temperature,C,water_temp_c,2
+Temperature,C,water_temp_C,2
 Temperature,F,_TempF,2
 Temperature,K,_TempK,0
 Conductivity,mS/cm,water_conductivity_mS/cm,3
