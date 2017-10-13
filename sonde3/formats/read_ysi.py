@@ -153,7 +153,7 @@ def read_ysi(ysi_file, tzinfo=None):
         return metadata, pd.DataFrame.from_records(data, columns=parameters)
 
 
-def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
+def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=None):
     """
     Method reads a text based YSI sonde instrument file and returns a pandas DataFrame for the table and metadata.
 
@@ -179,9 +179,18 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
     if datetimecols is None:
         datetimecols = [0,1]
         
+    if header is None:
+        header = [0,1]
+        
+    DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, engine='python', header=header,na_values=['','na'])
 
-    DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, engine='python', header=[0,1],na_values=['','na'])
-
+    fixed_columns = []
+    for col in DF.columns:
+        a = ''.join(col).rstrip("-")
+        a = ''.join(a).lstrip(" ")
+        fixed_columns.append(a)
+    DF.columns = fixed_columns
+    DF.reindex(columns = fixed_columns)     
     #convert timezone to UTC and insert at front column
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
@@ -191,7 +200,7 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None):
             
         submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
         if submatch.empty:
-            warnings.warn("Could not match parameter <%s> to definition file in <%s>" %(str(col), str(metadata['Filename'])), stacklevel=2)
+            warnings.warn("Could not match parameter <%s> to definition file in <%s>" %(str(col), str(ysi_file)), stacklevel=2)
      
         if "Unnamed" not in col[1]:  #check for a null value in the units column
             match = submatch[submatch['unit'].str.contains(col[1])]

@@ -22,6 +22,8 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
         metadata, df = formats.read_ysi_exo_csv(filename)
     elif file_type is 'ysi_csv':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',)
+    elif file_type is 'ysi_text':
+        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',None,[1,3])
     elif file_type is 'ysi_csv_datetime':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',[0])
     elif file_type is 'ysi_tab':
@@ -249,7 +251,7 @@ def autodetect(filename):
             filetype =  'midgewater_csv'
         elif lines[0].find(b'the following data have been') != -1:
             filetype =  'lcra_csv'
-        elif lines[0].find(b'=') != -1:
+        elif lines[0].find(b"=") != -1:
             filetype =  'ysi_text'
         elif lines[0].find(b'##YSI ASCII Datafile=') != -1:
             filetype =  'ysi_ascii'
