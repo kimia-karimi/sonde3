@@ -21,11 +21,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=[
-        'pandas>=0.20.1',
-        'pytz>=2010o',
-        'seawater>=3.3.4',
-    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',

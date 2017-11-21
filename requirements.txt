@@ -1,2 +1,3 @@
-seawater
-pandas
+pandas>=0.20.1
+pytz>=2010o
+seawater>=3.3.4
