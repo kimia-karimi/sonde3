@@ -22,6 +22,8 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
         metadata, df = formats.read_ysi_exo_csv(filename)
     elif file_type is 'ysi_csv':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',)
+    elif file_type is 'ysi_text':
+        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',None,[1,3])
     elif file_type is 'ysi_csv_datetime':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',[0])
     elif file_type is 'ysi_tab':
@@ -59,7 +61,7 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
                     newcolumns.append(  'water_dissolved_oxygen_concentration')
                 elif 'water_DO_%' in col:    
                     newcolumns.append('water_dissolved_oxygen_percent_saturation')
-                elif 'water_temp_c' in col:    
+                elif 'water_temp_C' in col:    
                     newcolumns.append( 'water_temperature')
                 elif 'water_salinity_PSU' in col:    
                     newcolumns.append('seawater_salinity' ) 
@@ -106,9 +108,9 @@ def calculate_conductance(df):
     
     if ('water_conductivity_mS/cm' in df.columns) and ('water_specific_conductivity_mS/cm' in df.columns):
         return df
-    elif ('water_conductivity_mS/cm' in df.columns) and ('water_temp_c' in df.columns) and not ('water_specific_conductivity_mS/cm' in df.columns):
+    elif ('water_conductivity_mS/cm' in df.columns) and ('water_temp_C' in df.columns) and not ('water_specific_conductivity_mS/cm' in df.columns):
         df['water_specific_conductivity_mS/cm'] = df.apply (_calculate_specific_conductivity,axis=1)
-    elif ('water_specific_conductivity_mS/cm' in df.columns)  and ('water_temp_c' in df.columns) and not ('water_conductivity_mS/cm' in df.columns):
+    elif ('water_specific_conductivity_mS/cm' in df.columns)  and ('water_temp_C' in df.columns) and not ('water_conductivity_mS/cm' in df.columns):
         df['water_conductivity_mS/cm'] = df.apply (_calculate_conductivity,axis=1)
     return df
 
@@ -116,13 +118,13 @@ def calculate_salinity_psu(df):
     """
     Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package
     """
-    if ('water_temp_c' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
+    if ('water_temp_C' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
         df['water_salinity_PSU'] = df.apply (_calculate_salinity_psu,axis=1)
     return df
         
 def _calculate_salinity_psu(row):
     
-    return  seawater.salt(row['water_conductivity_mS/cm']/ 42.914, row['water_temp_c'], row['water_depth_m_nonvented'] + 10.132501)
+    return  seawater.salt(row['water_conductivity_mS/cm']/ 42.914, row['water_temp_C'], row['water_depth_m_nonvented'] + 10.132501)
 
 def _scale_conductivity_us(row):
 
@@ -138,12 +140,12 @@ def calculate_do_mgl(df):
     
     Weiss, R. (1970). "The solubility of nitrogen, oxygen, and argon in water and seawater".
     """
-    if ('water_DO_%' in df.columns) and ('water_salinity_PSU' in df.columns) and ('water_temp_c' in df.columns):
+    if ('water_DO_%' in df.columns) and ('water_salinity_PSU' in df.columns) and ('water_temp_C' in df.columns):
         df['water_DO_mgl'] = df.apply (_calculate_do_mgl,axis=1)
     return df
         
 def _calculate_do_mgl(row):
-    tk = 1 / (row['water_temp_c'] + 273.15)
+    tk = 1 / (row['water_temp_C'] + 273.15)
     p1 =-862194900000*tk**4+12438000000*tk**3-66423080*tk**2+157570.1*tk-139.344
     p2 =2140.7*tk**2-10.754*tk+0.017674
     dosat =0.01*2.71828182845904**(p1-row['water_salinity_PSU']*p2)
@@ -153,13 +155,13 @@ def _calculate_specific_conductivity(row):
     """ formula from https://in-situ.com/wp-content/uploads/2015/01/Specific-Conductance-as-an-Output-Unit-for-Conductivity-Readings-Tech-Note.pdf
     """
     r = 0.0191
-    return  (row['water_conductivity_mS/cm']/ (1.0 + (r * (row['water_temp_c'] - 25.0))))
+    return  (row['water_conductivity_mS/cm']/ (1.0 + (r * (row['water_temp_C'] - 25.0))))
 
 def _calculate_conductivity(row):
     """ formula from https://in-situ.com/wp-content/uploads/2015/01/Specific-Conductance-as-an-Output-Unit-for-Conductivity-Readings-Tech-Note.pdf
     """
     r = 0.0191
-    return  (row['water_specific_conductivity_mS/cm'] * (1.0 + (r * (row['water_temp_c'] - 25.0))))
+    return  (row['water_specific_conductivity_mS/cm'] * (1.0 + (r * (row['water_temp_C'] - 25.0))))
         
 def autodetect(filename):
     """
@@ -249,7 +251,7 @@ def autodetect(filename):
             filetype =  'midgewater_csv'
         elif lines[0].find(b'the following data have been') != -1:
             filetype =  'lcra_csv'
-        elif lines[0].find(b'=') != -1:
+        elif lines[0].find(b"=") != -1:
             filetype =  'ysi_text'
         elif lines[0].find(b'##YSI ASCII Datafile=') != -1:
             filetype =  'ysi_ascii'

@@ -39,7 +39,21 @@ def read_ysi_exo_csv(ysi_file,delim=None):
 
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
-  
+
+
+    print (raw_metadata.iloc[9][1])
+    if "UTC" not in raw_metadata.iloc[9][1]:
+        DF.insert(0,'Datetime_(native)' ,  DF['Datetime_(UTC)'])
+        DF = DF.drop('Datetime_(UTC)', 1)
+        
+    elif ("CST" in raw_metadata.iloc[9][1]) or ("CDT" in raw_metadata.iloc[9][1]):
+        localtime = pytz.timezone('US/Central')
+        DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
+        DF = DF.drop('Datetime_(Native)', 1)
+        
+
+    print (DF.columns)
+        
     metadata = metadata.append([{'Model' : 'EXO'}])
     metadata = metadata.set_value([0], 'Manufacturer' ,'YSI')
     metadata = metadata.set_value([0], 'Instrument_Serial_Number' ,raw_metadata.iloc[4][1].replace('Sonde ', ''))
