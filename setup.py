@@ -19,7 +19,7 @@ setup(
     long_description=__doc__,
     keywords='sonde water quality format environment ysi',
     packages=find_packages(),
-    package_data={'': ['data/ysi_definitions.csv']},
+    include_package_data=True,
     platforms='any',
     install_requires=[
         'pandas>=0.20.1',
