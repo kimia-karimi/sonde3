@@ -19,13 +19,8 @@ setup(
     long_description=__doc__,
     keywords='sonde water quality format environment ysi',
     packages=find_packages(),
-    package_data={'': ['data/ysi_param.def']},
+    include_package_data=True,
     platforms='any',
-    install_requires=[
-        'pandas>=0.20.1',
-        'pytz>=2010o',
-        'seawater>=3.3.4',
-    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
