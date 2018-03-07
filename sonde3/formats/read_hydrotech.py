@@ -5,7 +5,7 @@ import os
 import io, itertools
 import csv
 import warnings
-import ntpath
+import six
 
 def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     """ Reads a proprietary format Hydrotech file
@@ -22,7 +22,8 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
 
     package_directory = os.path.dirname(os.path.abspath(__file__))
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
-
+    if not isinstance(hydrotech_file, six.string_types):
+        hydrotech_file.seek(0)
     DF = pd.read_csv(hydrotech_file, sep=delim, parse_dates={'Datetime_(ascii)': [0,1]},\
                       na_values=['','na', '999999', '#'], engine='c',encoding='cp1252', \
                       names = list(range(0,20)))
