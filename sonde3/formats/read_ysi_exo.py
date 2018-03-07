@@ -5,8 +5,7 @@ import os
 import io, itertools
 import csv
 import warnings
-import ntpath
-
+import six
 
 def read_ysi_exo_csv(ysi_file,delim=None):
     """
@@ -27,15 +26,20 @@ def read_ysi_exo_csv(ysi_file,delim=None):
 
     #localtime = pytz.timezone('US/Central')
 
+    if not isinstance(ysi_file, six.string_types):
+        ysi_file.seek(0)
     #grab 30 lines discover what the real header is, then trim the file
     raw_metadata = pd.read_csv(ysi_file, sep=delim, engine='python',na_values=['','na'],header=None, nrows=30)
     header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
     raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
 
+    if not isinstance(ysi_file, six.string_types):
+        ysi_file.seek(0)
     #grab main file from header point, squash datetime row
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1,2]}, sep=delim, engine='python',na_values=['','na'], header = header_row_index)
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim, engine='python',na_values=['','na'], header = header_row_index)
     DF = DF.drop(DF.index[:header_row_index])
-
+    DF = DF.drop('Time (Fract. Sec)',1)
+    #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
 
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
@@ -52,8 +56,6 @@ def read_ysi_exo_csv(ysi_file,delim=None):
         DF = DF.drop('Datetime_(Native)', 1)
         
 
-    print (DF.columns)
-        
     metadata = metadata.append([{'Model' : 'EXO'}])
     metadata = metadata.set_value([0], 'Manufacturer' ,'YSI')
     metadata = metadata.set_value([0], 'Instrument_Serial_Number' ,raw_metadata.iloc[4][1].replace('Sonde ', ''))
@@ -61,8 +63,8 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     metadata = metadata.set_value([0], 'User' ,raw_metadata.iloc[5][1])
     metadata = metadata.set_value([0], 'Averaging' ,raw_metadata.iloc[8][1])
     metadata = metadata.set_value([0], 'Firmware' ,raw_metadata.iloc[16][2])
-    head, tail = ntpath.split(ysi_file)
-    metadata = metadata.set_value([0], 'Filename' , tail)
+    #head, tail = ntpath.split(ysi_file)
+    #metadata = metadata.set_value([0], 'Filename' , tail)
     metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
     metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
     sensors = raw_metadata.iloc[15:, 0:3]
@@ -75,17 +77,21 @@ def read_ysi_exo_csv(ysi_file,delim=None):
             continue
         param = col.split()
         submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(param[0])]
-        if submatch.empty:
-            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-     
+               
         if "Unnamed" not in col[1]:  #check for a null value in the units column
             match = submatch[submatch['unit'].str.contains(param[1])]
+            
         else:
             DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
+            #print (str(submatch.iloc[0]['standard']))
             
         if not match.empty:
-                DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+            DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+        else:
+            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
+                #print (str(match.iloc[0]['standard']))
 
+                
     #now convert all data rows to floats...
     #move this to separate function if I have to do this more than for hydrotechs
     floater = lambda x: float(x)

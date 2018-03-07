@@ -3,9 +3,10 @@ Temp,C,water_temp_C
 Temp,°C,water_temp_C
 Depth,m,water_depth_m_nonvented
 Battery,V,instrument_battery_voltage
-Cond,µS/cm,water_conductivity_uS/cm
-SpCond,µS/cm,water_specific_conductivity_uS/cm
 Cond,mS/cm,water_conductivity_mS/cm
+Cond,µS/cm,water_conductivity_uS/cm
+nLF,Cond,water_nLF_conductivity_uS/cm
+SpCond,µS/cm,water_specific_conductivity_uS/cm
 SpCond,mS/cm,water_specific_conductivity_mS/cm
 ODO%,%,water_DO_%
 ODO,%,water_DO_%
@@ -13,6 +14,7 @@ ODO,mg/L,water_DO_mgl
 ODOsat,%,water_DO_%
 ODO Conc,mg/L,water_DO_mgl
 Salinity,ppt,water_salinity_PSU
+Sal,psu,water_salinity_PSU
 TDS,g/L,water_tds_g/L
 Resistivity,KOhm.cm,water_resistivity_KOhm/cm
 pHmV,mV,water_pH_mV
