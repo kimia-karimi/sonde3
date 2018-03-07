@@ -6,8 +6,8 @@ import os
 import io, itertools
 import csv
 import warnings
-import ntpath
 import time
+import six
 
 def read_ysi(ysi_file, tzinfo=None):
         """
@@ -181,7 +181,8 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=
         
     if header is None:
         header = [0,1]
-        
+    if not isinstance(ysi_file, six.string_types):
+        ysi_file.seek(0)    
     DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, engine='python', header=header,na_values=['','na'])
 
     fixed_columns = []
@@ -214,8 +215,8 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=
     metadata =  pd.DataFrame(data = [['YSI', '', '', '', '', '', '']], columns=['Manufacturer', 'Instrument_Serial_Number','Model', \
                                                                                 'Station', 'Deployment_Setup_Time', 'Deployment_Start_Time', \
                                                                                 'Deployment_Stop_Time'])
-    head, tail = ntpath.split(ysi_file)
-    metadata = metadata.set_value([0], 'Filename' , tail)
+    #head, tail = ntpath.split(ysi_file)
+    #metadata = metadata.set_value([0], 'Filename' , tail)
     metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
     metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
     
