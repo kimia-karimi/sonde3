@@ -6,6 +6,8 @@ import io, itertools
 import csv
 import warnings
 import six
+import ntpath
+from .utils import match_param
 
 def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     """ Reads a proprietary format Hydrotech file
@@ -54,27 +56,16 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
     DF = DF.drop('Datetime_(ascii)', 1)
-    
     #drop all the odd informational rows at bottom of file
-    for col in DF.columns:   
-        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
-        if submatch.empty:
-            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-     
-        if "Unnamed" not in col[1]:  #check for a null value in the units column
-            match = submatch[submatch['unit'].str.contains(col[1])]
-        else:
-            DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
-            
-        if not match.empty:
-                DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+    
+    DF = match_param(DF,DEFINITIONS) 
                 
     raw_metadata = pd.read_csv(hydrotech_file, sep=delim, header=None,nrows=10)
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename'))
     metadata = metadata.append([{'Manufacturer' : 'Hydrotech'}])
-    head, tail = ntpath.split(hydrotech_file)
-    metadata = metadata.set_value([0], 'Filename' , tail)
+    #head, tail = ntpath.split(hydrotech_file)
+    #metadata = metadata.set_value([0], 'Filename' , tail)
     metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
     metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
     
