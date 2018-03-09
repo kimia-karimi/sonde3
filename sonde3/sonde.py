@@ -23,7 +23,7 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     elif file_type is 'ysi_csv':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',)
     elif file_type is 'ysi_text':
-        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',None,[1,3])
+        metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',None,[1,2,3])
     elif file_type is 'ysi_csv_datetime':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,',',[0])
     elif file_type is 'ysi_tab':
@@ -277,3 +277,4 @@ def autodetect(filename):
     #fid.close()
     return filetype
         
+

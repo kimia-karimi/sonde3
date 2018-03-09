@@ -1,12 +1,16 @@
 parameter,unit,standard
 Temp,C,water_temp_C
 Temp,°C,water_temp_C
+Depth,meters,water_depth_m_nonvented
 Depth,m,water_depth_m_nonvented
 Battery,V,instrument_battery_voltage
+Battery,volts,instrument_battery_voltage
 Cond,mS/cm,water_conductivity_mS/cm
 Cond,µS/cm,water_conductivity_uS/cm
+Cond,uS/cm,water_conductivity_uS/cm
 nLF,Cond,water_nLF_conductivity_uS/cm
 SpCond,µS/cm,water_specific_conductivity_uS/cm
+SpCond,uS/cm,water_specific_conductivity_uS/cm
 SpCond,mS/cm,water_specific_conductivity_mS/cm
 ODO%,%,water_DO_%
 ODO,%,water_DO_%

@@ -6,6 +6,7 @@ import io, itertools
 import csv
 import warnings
 import six
+from utils import match_param
 
 def read_ysi_exo_csv(ysi_file,delim=None):
     """
@@ -72,10 +73,11 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     metadata = metadata.set_value([0], 'Sensor_Firmware' , sensors[2].str.cat(sep=';'))
 
     DF = DF.drop(['Site Name'], axis=1)
-    for col in DF.columns:
+    """for col in DF.columns:
         if 'Datetime_(UTC)' in col:
             continue
         param = col.split()
+        
         submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(param[0])]
                
         if "Unnamed" not in col[1]:  #check for a null value in the units column
@@ -87,9 +89,11 @@ def read_ysi_exo_csv(ysi_file,delim=None):
             
         if not match.empty:
             DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+            #print (str(match.iloc[0]['standard']))
         else:
             warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-                #print (str(match.iloc[0]['standard']))
+    """
+    DF = match_param(DF,DEFINITIONS)           
 
                 
     #now convert all data rows to floats...
