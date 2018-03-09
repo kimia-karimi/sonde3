@@ -8,7 +8,8 @@ import csv
 import warnings
 import time
 import six
-from utils import match_param
+import ntpath
+from .utils import match_param
 
 def read_ysi(ysi_file, tzinfo=None):
         """
@@ -186,15 +187,19 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=
         ysi_file.seek(0)    
     DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, engine='python', header=header,na_values=['','na'])
     
-       
+    #print (DF.columns)   
     fixed_columns = []
     for col in DF.columns:
-        a = ''.join(col).rstrip("-")
-        a = ''.join(a).lstrip(" ")
-        fixed_columns.append(a)
+        if len(col) > 2: 
+            #print ("found --")
+            a = ''.join(col).rstrip("-")
+            a = ''.join(a).lstrip(" ")
+            fixed_columns.append(a)
+        else:
+            fixed_columns.append(col)
     DF.columns = fixed_columns
     DF.reindex(columns = fixed_columns)  
-      
+    
     #convert timezone to UTC and insert at front column
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)

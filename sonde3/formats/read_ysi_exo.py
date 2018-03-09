@@ -6,7 +6,7 @@ import io, itertools
 import csv
 import warnings
 import six
-from utils import match_param
+from .utils import match_param
 
 def read_ysi_exo_csv(ysi_file,delim=None):
     """

@@ -9,26 +9,38 @@ def match_param(DF,DEFINITIONS):
     If the column cannot be matched a warnings.warn is passed.
     
     """
+    fixed_columns = []
     for col in DF.columns:
-    #print "matching col:", col
+        #print ("matching col:", col)
         if 'Datetime_(UTC)' in col:
+            fixed_columns.append(col)
             continue
-        param = col.split()
+
         
-        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(param[0])]
+        if  not isinstance(col, tuple) :
+            col = col.split()
+
+        col = tuple(col)
+        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
                
         if "Unnamed" not in col[1]:  #check for a null value in the units column
-            match = submatch[submatch['unit'].str.contains(param[1])]
+            match = submatch[submatch['unit'].str.contains(col[1])]
             
         else:
-            DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
-            print (str(submatch.iloc[0]['standard']))
+            #DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
+            #print (str(submatch.iloc[0]['standard']))
+            col = (str(submatch.iloc[0]['standard']))
             
         if not match.empty:
-            DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+            #DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
             #print (str(match.iloc[0]['standard']))
+            col = (str(match.iloc[0]['standard']))
         else:
             warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-            
+
+        fixed_columns.append(col)
+    DF.columns = fixed_columns
+    DF.reindex(columns = fixed_columns)
+    #print (DF.columns, fixed_columns)      
     return DF
    
