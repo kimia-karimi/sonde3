@@ -29,7 +29,9 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     elif file_type is 'ysi_tab':
         metadata, df = formats.read_ysi_ascii(filename,  tzinfo,'\t')
     elif file_type is 'hydrotech_csv':
-        metadata, df = formats.read_hydrotech(filename,  tzinfo,',') 
+        metadata, df = formats.read_hydrotech(filename,  tzinfo,',')
+    elif file_type is 'lowell_csv':
+        metadata, df = formats.read_lowell(filename,  tzinfo,',') 
     else:
         warnings.warn("File format <%s> not supported in <%s>" %(str(file_type), str(filename)) , stacklevel=2)
         
@@ -235,6 +237,8 @@ def autodetect(filename):
         
         if lines[0].lower().find(b'greenspan') != -1:
             filetype =  'greenspan_csv'
+        elif lines[0].lower().find(b'lowell') != -1:
+            filetype =  'lowell_csv'
         elif lines[0].lower().find(b'minisonde') != -1:
             filetype =  'hydrotech_csv'
         elif lines[0].lower().find(b'log file name') != -1:
@@ -272,9 +276,47 @@ def autodetect(filename):
             filetype = 'ysi_exo_csv'
             
         else:
+            print (lines[0])
             filetype = 'unsupported_ascii'
             
     #fid.close()
     return filetype
-        
+
+
+def merge_lowell():
+
+    # current working directory
+    path = os.getcwd()
+
+    # loop through files in path
+    for fil in os.listdir(path):
+        # check if file is a tiltmeter current file
+        if fil.endswith('_CR.TXT'):
+            print ("got one")
+            # extract serial number
+            serial = fil[:7]
+            # extract deployment name
+            deployment = fil[8:-11]
+            # read the currents
+            cr = pd.read_csv(fil, parse_dates=[[0, 1]], index_col=0)
+            # read the temperature
+            t = pd.read_csv(fil[:-6] + 'T.TXT', parse_dates=[[0, 1]], index_col=0)
+            # concatenate temperature into the current dataframe
+            cr['Temperature (C)'] = t['Temperature (C)']
+            # extract start date (first date)
+            start = cr.index[0].date()
+            # extract end date (last date)
+            end = cr.index[-1].date()
+            # create a unique docstring
+            docstring = '# Lowell TCM {} {} {} {}'.format(serial, deployment, start, end)
+            # open the output file for writing
+            f = open( fil[:-11] + '.csv', 'w')
+            # write the docstring
+            f.write(docstring + '\n')
+            # write the current dataframe to csv
+            cr.to_csv(f)
+            # close the file
+            f.close()
+
+
 

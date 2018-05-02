@@ -1,6 +1,7 @@
 parameter,unit,standard
 Temp,C,water_temp_C
 Temp,°C,water_temp_C
+Temperature,(C),water_temp_C
 Depth,meters,water_depth_m_nonvented
 Depth,m,water_depth_m_nonvented
 Battery,V,instrument_battery_voltage
@@ -37,5 +38,10 @@ Fault,Code,sonde_fault_code
 Site,Name,station_name
 Cable,Pwr,sonde_cable_power_voltage
 Turbid+,NTU,water_turbidity_NTU
+Velocity-N,(cm/s),northward_water_velocity_cm/s
+Velocity-E,(cm/s),eastward_water_velocity_cm/s
+Bearing,(degrees),bearing_degrees
+Speed,(cm/s),water_speed_cm/s
+
 
 
