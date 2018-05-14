@@ -60,7 +60,8 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
     #drop all the odd informational rows at bottom of file
     
     DF = match_param(DF,DEFINITIONS) 
-          
+    if not isinstance(lowell_file, six.string_types):
+        lowell_file.seek(0)
     raw_metadata = pd.read_csv(lowell_file, sep=delim, header=None,nrows=1)
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename'))
