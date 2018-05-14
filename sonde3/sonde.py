@@ -70,7 +70,15 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
                 elif 'water_turbidity_NTU' in col:    
                     newcolumns.append( 'water_turbidity')
                 elif 'water_chorophyll-a_ug/L' in col:    
-                    newcolumns.append( 'chlorophyll_a' )   
+                    newcolumns.append( 'chlorophyll_a' )
+                elif 'water_speed_cm/s' in col:    
+                    newcolumns.append( 'water_speed' )
+                elif 'bearing_degrees' in col:    
+                    newcolumns.append( 'water_bearing' )
+                elif 'northward_water_velocity_cm/s' in col:    
+                    newcolumns.append( 'northward_water_velocity' )
+                elif 'eastward_water_velocity_cm/s' in col:    
+                    newcolumns.append( 'eastward_water_velocity' )  
                 else:
                     newcolumns.append(col)
                                         
@@ -287,7 +295,7 @@ def merge_lowell():
 
     # current working directory
     path = os.getcwd()
-
+    
     # loop through files in path
     for fil in os.listdir(path):
         # check if file is a tiltmeter current file
@@ -298,9 +306,10 @@ def merge_lowell():
             # extract deployment name
             deployment = fil[8:-11]
             # read the currents
-            cr = pd.read_csv(fil, parse_dates=[[0, 1]], index_col=0)
+            cr = pd.read_csv(fil, parse_dates=[0], index_col=0)
             # read the temperature
-            t = pd.read_csv(fil[:-6] + 'T.TXT', parse_dates=[[0, 1]], index_col=0)
+            t = pd.read_csv(fil[:-6] + 'T.TXT', parse_dates=[0], index_col=0)
+            t.head()
             # concatenate temperature into the current dataframe
             cr['Temperature (C)'] = t['Temperature (C)']
             # extract start date (first date)
