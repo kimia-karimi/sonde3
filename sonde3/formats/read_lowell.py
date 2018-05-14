@@ -30,7 +30,6 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
                       na_values=['','na', '999999', '#'], engine='c',encoding='cp1252', \
                       names = list(range(0,20)))
 
-    print (DF.columns)
     #drop the end of the file messages if exist    
     droplist = ['Power loss', 'Late probe', 'Recovery finished']
     DF = DF[~DF['Datetime_(ascii)'].str.contains('|'.join(droplist))]
@@ -51,7 +50,6 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
     '''
     columns[0] = "Datetime_(ascii)"
     DF.columns = columns
-    print(columns)
     DF = DF.drop(DF.index[:2])
     DF = pd.concat([DF, pd.to_datetime(DF['Datetime_(ascii)']).rename('Datetime_(Native)')], axis=1)
     
