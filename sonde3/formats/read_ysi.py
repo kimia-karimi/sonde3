@@ -102,9 +102,9 @@ def read_ysi(ysi_file, tzinfo=None):
                 
                 if hasattr(ysi_file, "__getitem__"):
                         head, tail = ntpath.split(ysi_file)
-                        metadata = metadata.set_value([0], 'Filename' , tail)
+                        metadata.at[0, 'Filename'] = tail
                 else:
-                        metadata = metadata.set_value([0], 'Filename' , ysi_file.filename)
+                        metadata.at[0, 'Filename'] = ysi_file.filename
                         
             elif record_type == b'B':  #row headers of the data
                 num_params = num_params + 1

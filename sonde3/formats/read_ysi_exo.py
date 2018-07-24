@@ -45,8 +45,8 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
 
-
-    print (raw_metadata.iloc[9][1])
+    
+    
     if "UTC" not in raw_metadata.iloc[9][1]:
         DF.insert(0,'Datetime_(native)' ,  DF['Datetime_(UTC)'])
         DF = DF.drop('Datetime_(UTC)', 1)
@@ -56,21 +56,21 @@ def read_ysi_exo_csv(ysi_file,delim=None):
         DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
         DF = DF.drop('Datetime_(Native)', 1)
         
-
+    
     metadata = metadata.append([{'Model' : 'EXO'}])
-    metadata = metadata.set_value([0], 'Manufacturer' ,'YSI')
-    metadata = metadata.set_value([0], 'Instrument_Serial_Number' ,raw_metadata.iloc[4][1].replace('Sonde ', ''))
-    metadata = metadata.set_value([0], 'Station' ,raw_metadata.iloc[6][1])
-    metadata = metadata.set_value([0], 'User' ,raw_metadata.iloc[5][1])
-    metadata = metadata.set_value([0], 'Averaging' ,raw_metadata.iloc[8][1])
-    metadata = metadata.set_value([0], 'Firmware' ,raw_metadata.iloc[16][2])
+    metadata.at[0, 'Manufacturer']= 'YSI'
+    metadata.at[0, 'Instrument_Serial_Number']= raw_metadata.iloc[4][1].replace('Sonde ', '')
+    metadata.at[0, 'Station' ]=raw_metadata.iloc[6][1]
+    metadata.at[0, 'User']=raw_metadata.iloc[5][1]
+    metadata.at[0, 'Averaging']=raw_metadata.iloc[8][1]
+    metadata.at[0, 'Firmware' ]=raw_metadata.iloc[16][2]
     #head, tail = ntpath.split(ysi_file)
-    #metadata = metadata.set_value([0], 'Filename' , tail)
+    #metadata = metadata.iat([0], 'Filename' , tail)
     metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
     metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
     sensors = raw_metadata.iloc[15:, 0:3]
-    metadata = metadata.set_value([0], 'Sensor_Serial_Numbers' , sensors[1].str.cat(sep=';'))
-    metadata = metadata.set_value([0], 'Sensor_Firmware' , sensors[2].str.cat(sep=';'))
+    metadata.at[0, 'Sensor_Serial_Numbers']=sensors[1].str.cat(sep=';')
+    metadata.at[0, 'Sensor_Firmware']=  sensors[2].str.cat(sep=';')
 
     DF = DF.drop(['Site Name'], axis=1)
     """for col in DF.columns:
@@ -95,7 +95,7 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     """
     DF = match_param(DF,DEFINITIONS)           
 
-                
+               
     #now convert all data rows to floats...
     #move this to separate function if I have to do this more than for hydrotechs
     floater = lambda x: float(x)

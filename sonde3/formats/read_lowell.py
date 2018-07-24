@@ -41,7 +41,8 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
     columns = []
     for index, row in DF[0:1].iterrows():
         for i in row:
-            columns.append(i)
+            columns.append(i.replace('(','').replace(')',''))
+            
     k = 0
     '''for index, row in DF[1:2].iterrows():
         for i in row:
@@ -74,8 +75,8 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
     
     for i, row in raw_metadata[0:9].iterrows():
         if i == 0:
-            metadata = metadata.set_value([0], 'Model',  row[0].split()[2])
-            metadata = metadata.set_value([0], 'Instrument_Serial_Number',  row[0].split()[3])
+            metadata.at[0, 'Model']=  row[0].split()[2]
+            metadata.at[0, 'Instrument_Serial_Number'] = row[0].split()[3]
 
     #now convert all data rows to floats...
     floater = lambda x: float(x)

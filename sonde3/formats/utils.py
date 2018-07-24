@@ -16,7 +16,6 @@ def match_param(DF,DEFINITIONS):
             fixed_columns.append(col)
             continue
 
-        
         if  not isinstance(col, tuple) :
             col = col.split()
 
