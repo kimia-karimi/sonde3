@@ -71,12 +71,12 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     
     for i, row in raw_metadata[0:9].iterrows():
         if i == 0:
-            metadata = metadata.set_value([0], 'Model',  row[0].split()[0])
-            metadata = metadata.set_value([0], 'Instrument_Serial_Number',  row[0].split()[1])
+            metadata.at[0, 'Model']=  row[0].split()[0]
+            metadata.at[0, 'Instrument_Serial_Number']=  row[0].split()[1]
         elif i == 1:
-            metadata = metadata.set_value([0], 'Station',  row[0].split(' : ')[1])
+            metadata.at[0, 'Station']=  row[0].split(' : ')[1]
         elif i == 2:
-            metadata = metadata.set_value([0], 'Deployment_Setup_Time',  localtime.localize(datetime.strptime(row[0].split(' : ')[1], '%m%d%y')).astimezone(utc))
+            metadata.at[0, 'Deployment_Setup_Time']=  localtime.localize(datetime.strptime(row[0].split(' : ')[1], '%m%d%y')).astimezone(utc)
 
     #now convert all data rows to floats...
     #move this to separate function if I have to do this more than for hydrotechs

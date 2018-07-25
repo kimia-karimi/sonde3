@@ -36,16 +36,19 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
         warnings.warn("File format <%s> not supported in <%s>" %(str(file_type), str(filename)) , stacklevel=2)
         
         return pd.DataFrame(), pd.DataFrame()
-
+    
     if not df.empty:
         if remove_invalids is True:
+            
             df = _remove_invalids(df)
-
+            
+        
+        
         df = calculate_conductance(df)
         df = calculate_salinity_psu(df)
         df = calculate_do_mgl(df)
 
-
+        
         if twdbparams:
             #create a new index.  Pandas does not use mutable index's and
             #makes this a real pain.
@@ -84,7 +87,7 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
                                         
             df.columns = newcolumns
 
-    df = df.set_index(df['Datetime_(UTC)'])           
+    #df = df.set_index(df['Datetime_(UTC)'])
     return metadata, df
 
 
@@ -129,13 +132,18 @@ def calculate_salinity_psu(df):
     Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package
     """
     if ('water_temp_C' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
+
+        if ('water_salinity_PSU' in df.columns):
+            df.drop(['water_salinity_PSU'], axis=1 , inplace = True)
         df['water_salinity_PSU'] = df.apply (_calculate_salinity_psu,axis=1)
+        
     return df
         
 def _calculate_salinity_psu(row):
     
     return  seawater.salt(row['water_conductivity_mS/cm']/ 42.914, row['water_temp_C'], row['water_depth_m_nonvented'] + 10.132501)
-
+   
+   
 def _scale_conductivity_us(row):
 
     return (row['water_conductivity_uS/cm']/1000.0)
