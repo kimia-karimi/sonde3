@@ -46,7 +46,7 @@ def read_ysi_exo_csv(ysi_file,delim=None):
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
 
     
-    
+
     if "UTC" not in raw_metadata.iloc[9][1]:
         DF.insert(0,'Datetime_(native)' ,  DF['Datetime_(UTC)'])
         DF = DF.drop('Datetime_(UTC)', 1)
@@ -108,5 +108,4 @@ def read_ysi_exo_csv(ysi_file,delim=None):
 
     DF = pd.concat([dt_column,data], axis=1)
 
-    
     return metadata, DF

@@ -11,7 +11,6 @@ def match_param(DF,DEFINITIONS):
     """
     fixed_columns = []
     for col in DF.columns:
-        #print ("matching col:", col)
         if 'Datetime_(UTC)' in col:
             fixed_columns.append(col)
             continue
@@ -25,24 +24,27 @@ def match_param(DF,DEFINITIONS):
         if len(col)> 1:
             if "Unnamed" not in col[1]:  #check for a null value in the units column
                 match = submatch[submatch['unit'].str.contains(col[1])]
+                
             
-        else:
-            #DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
-            #print (str(submatch.iloc[0]['standard']))
-            col = (str(submatch.iloc[0]['standard']))
+            else:
+                #DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
+                #print (str(submatch.iloc[0]['standard']))
+                col = (str(submatch.iloc[0]['standard']))
+                
             
-        if not match.empty:
-            #DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
-            #print (str(match.iloc[0]['standard']))
-            col = (str(match.iloc[0]['standard']))
+            if not match.empty:
+                #DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
+                #print (str(match.iloc[0]['standard']))
+                col = (str(match.iloc[0]['standard']))
+                
         else:
             warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
             #convert list to single string to avoid errors in later handling the pandas columns
-            col = ''.join(str(e)+' ' for e in col)  
+            col = ''.join(str(e)+' ' for e in col)
+            
 
         fixed_columns.append(col)
     DF.columns = fixed_columns
-    DF.reindex(columns = fixed_columns)
-    #print (DF.columns, fixed_columns)      
+    DF.reindex(columns = fixed_columns)     
     return DF
    
