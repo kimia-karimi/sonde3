@@ -42,6 +42,10 @@ Velocity-N,cm/s,northward_water_velocity_cm/s
 Velocity-E,cm/s,eastward_water_velocity_cm/s
 Bearing,degrees,bearing_degrees
 Speed,cm/s,water_speed_cm/s
+BGA-PE,µg/L,water_bga_pe
+BGA-PE,RFU,water_bga_pe_rfu
+Chlorophyll,RFU,chlorophyll_a_rfu
+Chlorophyll,µg/L,chlorophyll_a
 
 
 
