@@ -39,11 +39,12 @@ def match_param(DF,DEFINITIONS):
                 
         else:
             warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-            #convert list to single string to avoid errors in later handling the pandas columns
+            # convert list to single string to avoid errors in later handling the pandas columns
             col = ''.join(str(e)+' ' for e in col)
+            # this introduces a trailing whitespace if col[1] is none
             
 
-        fixed_columns.append(col)
+        fixed_columns.append(col.rstrip()) # remove any trailing whitespace if exists
     DF.columns = fixed_columns
     DF.reindex(columns = fixed_columns)     
     return DF
