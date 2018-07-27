@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import seawater
 import warnings
-
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     """
@@ -12,6 +12,7 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     Method autodetects the file type and calculates salinity (PSU) and
     dissolved oxygen (mg/L) if the required parameters are present
     """
+       
     file_type = autodetect(filename)
 
     if file_type is 'ysi_binary':

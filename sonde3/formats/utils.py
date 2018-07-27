@@ -1,4 +1,3 @@
-
 import warnings
 
 
@@ -25,16 +24,10 @@ def match_param(DF,DEFINITIONS):
             if "Unnamed" not in col[1]:  #check for a null value in the units column
                 match = submatch[submatch['unit'].str.contains(col[1])]
                 
-            
             else:
-                #DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
-                #print (str(submatch.iloc[0]['standard']))
                 col = (str(submatch.iloc[0]['standard']))
                 
-            
             if not match.empty:
-                #DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
-                #print (str(match.iloc[0]['standard']))
                 col = (str(match.iloc[0]['standard']))
                 
         else:
