@@ -30,7 +30,9 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     elif file_type is 'hydrotech_csv':
         metadata, df = formats.read_hydrotech(filename, tzinfo, ',')
     elif file_type is 'lowell_csv':
-        metadata, df = formats.read_lowell(filename, tzinfo, ',') 
+        metadata, df = formats.read_lowell(filename, tzinfo, ',')
+    elif file_type is 'txblend_csv':
+        metadata, df = formats.read_txblend(filename, tzinfo, ',')
     else:
         warnings.warn("File format <%s> not supported in <%s>" % (str(file_type), str(filename)), stacklevel=2)
         return pd.DataFrame(), pd.DataFrame()
@@ -260,6 +262,8 @@ def autodetect(filename):
             filetype = 'solinst_csv'
         elif lines[0].lower().find(b'pysonde csv format') != -1:
             filetype =  'generic_csv'
+        elif lines[0].lower().find(b'#txblend') != -1:
+            filetype =  'txblend_csv'
         elif lines[0].find(b'espey') != -1:
             filetype =  'espey_csv'
         elif lines[0].lower().find(b'request date') != -1:
@@ -287,7 +291,7 @@ def autodetect(filename):
             filetype = 'ysi_exo_csv'
             
         else:
-            print (lines[0])
+            #print (lines[0])
             filetype = 'unsupported_ascii'
             
     # fid.close()
