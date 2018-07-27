@@ -9,4 +9,3 @@ from .sonde import autodetect
 from .sonde import calculate_salinity_psu
 from .sonde import calculate_do_mgl
 from .sonde import merge_lowell
-
