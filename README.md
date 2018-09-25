@@ -2,7 +2,10 @@
 
 [![Binder](http://mybinder.org/badge.svg)](https://beta.mybinder.org/v2/gh/evanleeturner/sonde3/master)
 
-
+.. image:: https://zenodo.org/badge/97947845.svg
+   :target: https://zenodo.org/badge/latestdoi/97947845
+   
+   
 > sonde3 is a python3 library for extracting and processing binary and text output data from scientific environmental logging instruments.
 
 sonde3 is a python3 port of the package [sonde](https://github.com/twdb/sonde) that was originally developed in 2010.  Sonde3 is a library for interacting with instrument data collected by scientific environmental data loggers (e.g., YSI, Hydrolab, Eureka, Greenspan).  sonde3 can auto-convert between raw, proprietary data formats, comma separated files, and Microsoft Excel.
