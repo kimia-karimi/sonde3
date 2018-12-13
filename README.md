@@ -2,6 +2,8 @@
 
 [![Binder](http://mybinder.org/badge.svg)](https://beta.mybinder.org/v2/gh/evanleeturner/sonde3/master)
 
+[![DOI](https://zenodo.org/badge/97947845.svg)](https://zenodo.org/badge/latestdoi/97947845)
+
 
 > sonde3 is a python3 library for extracting and processing binary and text output data from scientific environmental logging instruments.
 
