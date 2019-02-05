@@ -8,6 +8,7 @@ import warnings
 import six
 from .utils import match_param
 
+
 def read_ysi_exo_csv(ysi_file,delim=None):
     """
     Method reads a text based YSI sonde instrument file in KOR EXO format and returns a pandas DataFrame for the table and metadata.
@@ -18,12 +19,12 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     A separator must be passed to the function as the deliminator YSI uses
     can be different.  (Somtimes tab separated, comma, or a series of spaces)
 
-    The function assumes that ['date','time','fractime'] are in column 0 and 1 and 2.  
+    The function assumes that ['date','time','fractime'] are in column 0 and 1 and 2.
     """
     package_directory = os.path.dirname(os.path.abspath(__file__))
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
 
-    utc=pytz.utc 
+    utc=pytz.utc
 
     #localtime = pytz.timezone('US/Central')
 
@@ -45,18 +46,18 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
 
-    
+
 
     if "UTC" not in raw_metadata.iloc[9][1]:
         DF.insert(0,'Datetime_(native)' ,  DF['Datetime_(UTC)'])
         DF = DF.drop('Datetime_(UTC)', 1)
-        
+
     elif ("CST" in raw_metadata.iloc[9][1]) or ("CDT" in raw_metadata.iloc[9][1]):
         localtime = pytz.timezone('US/Central')
         DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
         DF = DF.drop('Datetime_(Native)', 1)
-        
-    
+
+
     metadata = metadata.append([{'Model' : 'EXO'}])
     metadata.at[0, 'Manufacturer']= 'YSI'
     metadata.at[0, 'Instrument_Serial_Number']= raw_metadata.iloc[4][1].replace('Sonde ', '')
@@ -77,25 +78,25 @@ def read_ysi_exo_csv(ysi_file,delim=None):
         if 'Datetime_(UTC)' in col:
             continue
         param = col.split()
-        
+
         submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(param[0])]
-               
+
         if "Unnamed" not in col[1]:  #check for a null value in the units column
             match = submatch[submatch['unit'].str.contains(param[1])]
-            
+
         else:
             DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
             #print (str(submatch.iloc[0]['standard']))
-            
+
         if not match.empty:
             DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
             #print (str(match.iloc[0]['standard']))
         else:
             warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
     """
-    DF = match_param(DF,DEFINITIONS)           
+    DF = match_param(DF,DEFINITIONS)
 
-               
+
     #now convert all data rows to floats...
     #move this to separate function if I have to do this more than for hydrotechs
     floater = lambda x: float(x)
@@ -104,8 +105,73 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     dt_column = DF.iloc[:,0]
     data = DF.iloc[:,1:]
     data = data.applymap(floater)
-    
+
 
     DF = pd.concat([dt_column,data], axis=1)
+
+    return metadata, DF
+
+
+
+def read_ysi_exo_backup(ysi_file,delim=None):
+    """
+    Method reads a text based YSI sonde instrument file in KOR EXO Backup format and returns a pandas DataFrame for the table and metadata.
+
+    Method makes many assumptions about the standard formatting of the text file.
+    Method assumes the file is of YSI origin, and only has a single column header
+
+    A separator must be passed to the function as the deliminator YSI uses
+    can be different.  (Somtimes tab separated, comma, or a series of spaces)
+
+    The function assumes that ['date','time'] are in column 0 and 1.
+    """
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
+    utc=pytz.utc
+
+    if not isinstance(ysi_file, six.string_types):
+        ysi_file.seek(0)
+
+    #grab main file from header point, squash datetime row
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim, engine='python',na_values=['','na'], header = [0])
+    #DF = DF.drop(DF.index[:header_row_index])
+    #DF = DF.drop('Time (Fract. Sec)',1)
+        #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
+
+    metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
+                                     'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
+    metadata = metadata.append([{'Model' : 'EXO'}])
+
+    # stripping out all of the funky non-ascii characters out of the file so we can match properly
+    # otherwise EXO degree mark will break the match algorithm
+    new_cols = []
+    for col in DF.columns:
+        new_cols.append( ''.join(i for i in col if ord(i)<128))
+
+    DF.columns = new_cols
+
+    if 'Site' in DF:
+        DF = DF.drop(columns=['Site'])
+    if 'User ID' in DF:
+        DF = DF.drop(columns=['User ID'])
+    if 'Unit ID' in DF:
+        DF = DF.drop(columns=['Unit ID'])
+
+    DF = match_param(DF,DEFINITIONS)
+
+
+
+    #now convert all data rows to floats...
+    #move this to separate function if I have to do this more than for hydrotechs
+    floater = lambda x: float(x)
+
+    #split set
+    dt_column = DF.iloc[:,0]
+    data = DF.iloc[:,1:]
+    data = data.applymap(floater)
+
+
+    DF = pd.concat([dt_column,data], axis=1)
+
 
     return metadata, DF
