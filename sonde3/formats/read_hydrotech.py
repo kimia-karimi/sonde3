@@ -38,6 +38,8 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     DF = DF.dropna(how="all", axis=1)
     DF = DF.dropna(thresh=2)  # drop if we don't have at least 2 cells with real values
 
+
+
     columns = []
     for index, row in DF[0:1].iterrows():
         for i in row:
@@ -49,6 +51,16 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
             k+=1
     columns[0] = "Datetime_(ascii)"
     DF.columns = columns
+    #stripping the non-ascii characters out of the columns so we can parse properly.
+    new_cols = []
+    for col in DF.columns:
+        if col == "Datetime_(ascii)":
+            new_cols.append(col)
+            continue
+        new_cols.append( ''.join(i for i in col if ord(i)<128))
+
+    DF.columns = new_cols
+
     DF = DF.drop(DF.index[:2])
     DF = pd.concat([DF, pd.to_datetime(DF['Datetime_(ascii)']).rename('Datetime_(Native)')], axis=1)
 
@@ -57,6 +69,8 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
     DF = DF.drop('Datetime_(Native)', 1)
     DF = DF.drop('Datetime_(ascii)', 1)
     #drop all the odd informational rows at bottom of file
+
+
 
     DF = match_param(DF,DEFINITIONS)
     if not isinstance(hydrotech_file, six.string_types):
