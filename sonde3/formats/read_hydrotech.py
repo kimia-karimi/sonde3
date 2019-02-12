@@ -57,7 +57,7 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
         if col == "Datetime_(ascii)":
             new_cols.append(col)
             continue
-        new_cols.append( ''.join(i for i in col if ord(i)<128))
+        new_cols.append((col[0], ''.join(i for i in col[1] if ord(i)<128)))
 
     DF.columns = new_cols
 
