@@ -6,6 +6,7 @@ import io, itertools
 import csv
 import warnings
 import six
+import pytz
 from .utils import match_param
 
 
@@ -113,7 +114,7 @@ def read_ysi_exo_csv(ysi_file,delim=None):
 
 
 
-def read_ysi_exo_backup(ysi_file,delim=None):
+def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
     """
     Method reads a text based YSI sonde instrument file in KOR EXO Backup format and returns a pandas DataFrame for the table and metadata.
 
@@ -133,7 +134,7 @@ def read_ysi_exo_backup(ysi_file,delim=None):
         ysi_file.seek(0)
 
     #grab main file from header point, squash datetime row
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim, engine='python',na_values=['','na'], header = [0])
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python',na_values=['','na'], header = [0])
     #DF = DF.drop(DF.index[:header_row_index])
     #DF = DF.drop('Time (Fract. Sec)',1)
         #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
@@ -141,6 +142,16 @@ def read_ysi_exo_backup(ysi_file,delim=None):
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
     metadata = metadata.append([{'Model' : 'EXO'}])
+
+    utc=pytz.utc
+    if tzinfo:
+        localtime = tzinfo
+    else:
+        localtime = pytz.timezone('US/Central')
+
+        warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+    DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
+    DF = DF.drop('Datetime_(Native)', 1)
 
     # stripping out all of the funky non-ascii characters out of the file so we can match properly
     # otherwise EXO degree mark will break the match algorithm
