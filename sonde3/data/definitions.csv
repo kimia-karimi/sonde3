@@ -31,6 +31,8 @@ Resistivity,KOhm.cm,water_resistivity_KOhm/cm
 pHmV,mV,water_ph_mv
 pH,none,water_ph
 pH,pH,water_ph
+NTU,none,water_turbidity
+NTU,NTU,water_turbidity
 DO Charge,none,DO_Chrg
 PressureA,psia,water_pressure_abs
 Chlorophyll,ug/L,water_chorophyll-a_ug/L
