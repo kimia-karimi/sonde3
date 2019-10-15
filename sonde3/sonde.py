@@ -17,6 +17,8 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
 
     if file_type is 'ysi_binary':
         metadata, df = formats.read_ysi(filename, tzinfo)
+    elif file_type is 'ysi_exo2_csv':
+            metadata, df = formats.read_ysi_exo2_csv(filename)
     elif file_type is 'ysi_exo_csv':
         metadata, df = formats.read_ysi_exo_csv(filename)
     elif file_type is 'ysi_exo_backup':
@@ -235,6 +237,8 @@ def autodetect(filename):
                 filetype = 'eureka_xls'
             elif (lines[0].find(b'\xdecgf') != -1):
                 filetype = 'YSI_EXO'
+            elif (lines[1].find(b'\x00K\x00o\x00r\x00E\x00X\x00O\x00') != -1):
+                filetype = 'ysi_exo2_csv'
             else:
                 filetype = 'unsupported_bin'
 
@@ -272,6 +276,8 @@ def autodetect(filename):
             filetype =  'midgewater_csv'
         elif lines[0].find(b'the following data have been') != -1:
             filetype =  'lcra_csv'
+        elif lines[0].lower().find(b'sep=,') != -1:
+            filetype = 'ysi_exo2_csv'
         elif lines[0].find(b"=") != -1:
             filetype =  'ysi_text'
         elif lines[0].find(b'##YSI ASCII Datafile=') != -1:
@@ -285,7 +291,7 @@ def autodetect(filename):
         elif lines[0].find(b"Date") > -1 and lines[1].find(b"Y/M/D") > -1 and lines[0].find(b","):
             filetype =  'ysi_csv'
         elif lines[2].find(b'Manta') > -1 or lines[1].find(b'\xb0') > -1 or \
-                       lines[0].find(b'Start time : ') > -1:
+                        lines[0].find(b'Start time : ') > -1:
             filetype = 'eureka_csv'
         elif lines[0].lower().find(b'macroctd') != -1:
             filetype = 'macroctd_csv'
@@ -296,7 +302,6 @@ def autodetect(filename):
 
         else:
             #print (lines[0])
-            print (lines[0])
             filetype = 'unsupported_ascii'
 
     # fid.close()

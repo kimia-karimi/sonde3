@@ -8,7 +8,7 @@ format = 'ysi_binary'
 
 
 # timezone: if present in file else leave blank
-tz = 
+tz =
 
 # site name: if present in file else leave blank
 Station = 'BAYT_CST'
@@ -41,7 +41,7 @@ Deployment_Stop_Time = '03/13/2008 14:00:33'
 # 'water_depth_non_vented' : Water Surface Elevation (No Atm Pressure Correction)
 # 'water_depth_vented' : Water Surface Elevation (Atm Pressure Corrected)
 # These are the header of parameters = ["Date","Time","Temp","SpCond","Depth","ODO%","Battery","Cond","ODO Conc","Salinity"]
-parameters = ['water_temp_c','water_depth_non_vented','water_dissolved_oxygen_percent_saturation','instrument_battery_voltage','water_electrical_conductivity']
+parameters = ['water_temp_C','water_depth_non_vented','water_dissolved_oxygen_percent_saturation','instrument_battery_voltage','water_electrical_conductivity']
 
 
 # units (comma delimited, in column order)
@@ -52,7 +52,7 @@ parameters = ['water_temp_c','water_depth_non_vented','water_dissolved_oxygen_pe
 # battery: volt
 # dissolved oxygen: mgl (mg/l), percent (% Sat)
 # turbidity: ntu
-# ph (dimensionless): dl 
+# ph (dimensionless): dl
 #These are the header of parameters = ["M/D/Y","h:m:s","C","mS/cm","m","%","V","mS/cm","mg/L","ppt"]
 units = ['degC', 'mH2O', 'percent', 'volt', 'mScm']
 

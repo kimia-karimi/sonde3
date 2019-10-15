@@ -82,7 +82,7 @@ def compare_quantity_and_csv_str(quantities, str_list):
 class YSIReaderTestBase():
     def test_ysi_dates_match_csv(self):
         for date_pair in list(zip(self.ysi_reader['Datetime_(UTC)'], self.ysi_csv.dates)):
-            
+
             if date_pair[1].tzinfo is not None:
                 test_date = date_pair[1].replace(tzinfo=cdt).astimezone(utc)
             else:
@@ -114,7 +114,7 @@ def YSIReaderNaiveDatetime_Test():
     Test that naive datetimes are allowed
     """
     ysi_test_file_path = YSI_TEST_FILES_PATH + '/BAYT_20070323_CDT_YS1772AA_000.dat'
-    
+
     metadata, ysi_reader = sonde(ysi_test_file_path, tzinfo=cdt, remove_invalids=False)
     assert not ysi_reader.empty
 
@@ -132,7 +132,7 @@ class YSICompareWithCSVTestBase():
             assert date_pair[0] == test_date, "%r != %r" % (str(date_pair[0]), str(test_date))
 
     def test_ysi_temps_match_csv(self):
-        compare_quantity_and_csv_str(self.ysi_dataset['water_temp_c'], self.ysi_csv.temps)
+        compare_quantity_and_csv_str(self.ysi_dataset['water_temp_C'], self.ysi_csv.temps)
 
 #    def test_ysi_spconds_match_csv(self):
 #        compare_quantity_and_csv_str(self.ysi_dataset.data['water_specific_conductance'], self.ysi_csv.spconds)
@@ -250,4 +250,3 @@ def sondeYSINaiveDatetime_Test():
 
 if __name__ == '__main__':
     nose.run()
-
