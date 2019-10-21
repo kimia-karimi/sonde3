@@ -276,7 +276,7 @@ def autodetect(filename):
             filetype =  'midgewater_csv'
         elif lines[0].find(b'the following data have been') != -1:
             filetype =  'lcra_csv'
-        elif lines[0].lower().find(b'sep=,') != -1:
+        elif lines[0].find(b'KorEXO') != -1:
             filetype = 'ysi_exo2_csv'
         elif lines[0].find(b"=") != -1:
             filetype =  'ysi_text'
