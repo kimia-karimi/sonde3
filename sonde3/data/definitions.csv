@@ -10,9 +10,9 @@ Depth,m,water_depth_m_nonvented
 DEPm,DEPm,water_depth_m_nonvented
 Battery,V,instrument_battery_voltage
 Battery,volts,instrument_battery_voltage
-Cond,mS/cm,water_conductivity_mS/cm
 Cond,�S/cm,water_conductivity_uS/cm
 Cond,S/cm,water_conductivity_uS/cm
+Cond,mS/cm,water_conductivity_mS/cm
 Cond,uS/cm,water_conductivity_uS/cm
 nLF,Cond,water_nLF_conductivity_uS/cm
 SpCond,�S/cm,water_specific_conductivity_uS/cm
