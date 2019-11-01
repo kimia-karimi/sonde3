@@ -278,6 +278,8 @@ def autodetect(filename):
             filetype =  'lcra_csv'
         elif lines[0].find(b'KorEXO') != -1:
             filetype = 'ysi_exo2_csv'
+        elif lines[0].find(b'sep=') != -1:
+            filetype = 'ysi_exo2_csv'
         elif lines[0].find(b"=") != -1:
             filetype =  'ysi_text'
         elif lines[0].find(b'##YSI ASCII Datafile=') != -1:
