@@ -42,7 +42,7 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
     #grab main file from header point, squash datetime row
 
 
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim, engine='python',na_values=['','na'],   header = header_row_index)
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python',na_values=['','na'],   header = header_row_index)
     DF = DF.drop(DF.index[:header_row_index])
     DF = DF.drop('Time (Fract. Sec)',1)
     #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
@@ -51,15 +51,10 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
 
 
-    """
-    if "UTC" not in raw_metadata.iloc[9][1]:
-        DF.insert(0,'Datetime_(native)' ,  DF['Datetime_(UTC)'])
-        DF = DF.drop('Datetime_(UTC)', 1)
 
-    elif ("CST" in raw_metadata.iloc[9][1]) or ("CDT" in raw_metadata.iloc[9][1]):
-        localtime = pytz.timezone('US/Central')
-        DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
-        DF = DF.drop('Datetime_(Native)', 1)
+    localtime = pytz.timezone('US/Central')
+    DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
+    DF = DF.drop('Datetime_(Native)', 1)
     """
 
     metadata = metadata.append([{'Model' : 'EXO'}])
@@ -78,7 +73,9 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
     #metadata.at[0, 'Sensor_Firmware']=  sensors[2].str.cat(sep=';')
 
     DF = DF.drop(['Site Name'], axis=1)
-    """for col in DF.columns:
+    """
+    DF = DF.drop(['Site Name'], axis=1)
+    for col in DF.columns:
         if 'Datetime_(UTC)' in col:
             continue
         param = col.split()
@@ -97,7 +94,7 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
             #print (str(match.iloc[0]['standard']))
         else:
             warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-    """
+
 
     #this method strips out the crazy binary in the columns
     newcols = []
