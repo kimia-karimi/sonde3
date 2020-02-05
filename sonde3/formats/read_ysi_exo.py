@@ -39,7 +39,7 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     if not isinstance(ysi_file, six.string_types):
         ysi_file.seek(0)
     #grab main file from header point, squash datetime row
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim, engine='python',na_values=['','na'], header = header_row_index)
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim,na_values=['','na'], header = header_row_index)
     DF = DF.drop(DF.index[:header_row_index])
     DF = DF.drop('Time (Fract. Sec)',1)
     #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
@@ -134,7 +134,7 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
         ysi_file.seek(0)
 
     #grab main file from header point, squash datetime row
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python',na_values=['','na'], header = [0])
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=['','na'], header = [0])
     #DF = DF.drop(DF.index[:header_row_index])
     #DF = DF.drop('Time (Fract. Sec)',1)
         #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
