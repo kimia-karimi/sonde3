@@ -33,7 +33,7 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
         ysi_file.seek(0)
     #grab 30 lines discover what the real header is, then trim the file
     #grab 30 lines discover what the real header is, then trim the file
-    raw_metadata = pd.read_csv(ysi_file, sep=delim, engine='python',na_values=['','na'],header=None, nrows=30)
+    raw_metadata = pd.read_csv(ysi_file, sep=delim,na_values=['','na'],header=None, nrows=30)
     header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
     raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
 
@@ -42,7 +42,7 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
     #grab main file from header point, squash datetime row
 
 
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim, engine='python',na_values=['','na'],   header = header_row_index)
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=['','na'],   header = header_row_index)
     DF = DF.drop(DF.index[:header_row_index])
     DF = DF.drop('Time (Fract. Sec)',1)
     #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
