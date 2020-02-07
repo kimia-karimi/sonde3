@@ -27,22 +27,31 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
 
     utc=pytz.utc
 
+
     #localtime = pytz.timezone('US/Central')
 
     if not isinstance(ysi_file, six.string_types):
         ysi_file.seek(0)
     #grab 30 lines discover what the real header is, then trim the file
     #grab 30 lines discover what the real header is, then trim the file
-    raw_metadata = pd.read_csv(ysi_file, sep=delim,na_values=['','na'],header=None, nrows=30)
-    header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
-    raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
 
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file.seek(0)
+    #since the YSI EXO2 files contain NULL bytes lets strip those out and just return as a string isntead:
+    ysi_file = ysi_file.read().decode('utf-16')
+
+    for line in ysi_file:
+        line.replace('\0','')
+
+    #These files no longer contain very meaninful metdata - worth the effort to parse the unstructured
+    #string without making pandas go crazy.
+
+
+    #raw_metadata = pd.read_csv(io.StringIO(ysi_file), sep=delim,header=None, nrows=5)
+    #header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
+    header_row_index = 6
+    #raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
     #grab main file from header point, squash datetime row
 
-
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=['','na'],   header = header_row_index)
+    DF = pd.read_csv(io.StringIO(ysi_file), engine='python', parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=[''],   header = header_row_index, encoding='utf-8')
     DF = DF.drop(DF.index[:header_row_index])
     DF = DF.drop('Time (Fract. Sec)',1)
     #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
@@ -51,12 +60,12 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
 
 
-
     localtime = pytz.timezone('US/Central')
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
-    """
 
+    #cut the whole metadata sectio out...
+    """
     metadata = metadata.append([{'Model' : 'EXO'}])
     metadata.at[0, 'Manufacturer']= 'YSI'
     #metadata.at[0, 'Instrument_Serial_Number']= raw_metadata.iloc[4][1].replace('Sonde ', '')

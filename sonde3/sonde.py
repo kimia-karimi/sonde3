@@ -13,12 +13,13 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     dissolved oxygen (mg/L) if the required parameters are present
     """
 
+    
     file_type = autodetect(filename)
 
     if file_type is 'ysi_binary':
         metadata, df = formats.read_ysi(filename, tzinfo)
     elif file_type is 'ysi_exo2_csv':
-            metadata, df = formats.read_ysi_exo2_csv(filename)
+        metadata, df = formats.read_ysi_exo2_csv(filename)
     elif file_type is 'ysi_exo_csv':
         metadata, df = formats.read_ysi_exo_csv(filename)
     elif file_type is 'ysi_exo_backup':
