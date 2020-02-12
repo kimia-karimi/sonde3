@@ -147,7 +147,7 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
     metadata = metadata.append([{'Model' : 'EXO'}])
-    print (DF.columns)
+    
     utc=pytz.utc
     if tzinfo:
         localtime = tzinfo
