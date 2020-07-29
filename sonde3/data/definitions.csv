@@ -21,6 +21,8 @@ SPC-uS/cm,SPC-uS/cm,water_specific_conductivity_uS/cm
 SpCond,mS/cm,water_specific_conductivity_mS/cm
 ODO%,%,water_DO_%
 ODO,%,water_DO_%
+ODO,sat,water_DO_%
+ODO,local,water_DO_local
 ODO,mg/L,water_DO_mgl
 ODOsat,%,water_DO_%
 ODO Conc,mg/L,water_DO_mgl
@@ -54,5 +56,8 @@ Bearing,degrees,bearing_degrees
 Speed,cm/s,water_speed_cm/s
 BGA-PE,�g/L,water_bga_pe
 BGA-PE,RFU,water_bga_pe_rfu
+TAL,RFU,water_bga_pe_rfu
+TAL,�g/L,water_bga_pe
+TAL,ug/L,water_bga_pe
 Chlorophyll,RFU,chlorophyll_a_rfu
 Chlorophyll,�g/L,chlorophyll_a

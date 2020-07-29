@@ -54,55 +54,22 @@ def read_ysi_exo2_csv(ysi_file,delim=None):
     DF = pd.read_csv(io.StringIO(ysi_file), engine='python', parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=[''],   header = header_row_index, encoding='utf-8')
     DF = DF.drop(DF.index[:header_row_index])
     DF = DF.drop('Time (Fract. Sec)',1)
+    #now lets drop any rows that have bad data - this occurs when the sonde restarts
+    DF = DF[DF['Datetime_(Native)'] != ' ']
+    DF = DF[DF['Datetime_(Native)'] != None]
+    DF = DF[DF['Datetime_(Native)'] != "Date (MM/DD/YYYY) Time (HH:mm:ss)"]
+    #pd.set_option('display.max_rows', None)
+    #print (DF['Datetime_(Native)'])
     #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
 
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
 
-
+    DF['Datetime_(Native)'] = pd.to_datetime(DF['Datetime_(Native)'])
     localtime = pytz.timezone('US/Central')
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
-
-    #cut the whole metadata sectio out...
-    """
-    metadata = metadata.append([{'Model' : 'EXO'}])
-    metadata.at[0, 'Manufacturer']= 'YSI'
-    #metadata.at[0, 'Instrument_Serial_Number']= raw_metadata.iloc[4][1].replace('Sonde ', '')
-    #metadata.at[0, 'Station' ]=raw_metadata.iloc[6][1]
-    #metadata.at[0, 'User']=raw_metadata.iloc[5][1]
-    #metadata.at[0, 'Averaging']=raw_metadata.iloc[8][1]
-    #metadata.at[0, 'Firmware' ]=raw_metadata.iloc[16][2]
-    #head, tail = ntpath.split(ysi_file)
-    #metadata = metadata.iat([0], 'Filename' , tail)
-    #metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
-    #metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
-    #sensors = raw_metadata.iloc[15:, 0:3]
-    #metadata.at[0, 'Sensor_Serial_Numbers']=sensors[1].str.cat(sep=';')
-    #metadata.at[0, 'Sensor_Firmware']=  sensors[2].str.cat(sep=';')
-
     DF = DF.drop(['Site Name'], axis=1)
-    """
-    DF = DF.drop(['Site Name'], axis=1)
-    for col in DF.columns:
-        if 'Datetime_(UTC)' in col:
-            continue
-        param = col.split()
-
-        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(param[0])]
-
-        if "Unnamed" not in col[1]:  #check for a null value in the units column
-            match = submatch[submatch['unit'].str.contains(param[1])]
-
-        else:
-            DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
-            #print (str(submatch.iloc[0]['standard']))
-
-        if not match.empty:
-            DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
-            #print (str(match.iloc[0]['standard']))
-        else:
-            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
 
 
     #this method strips out the crazy binary in the columns
