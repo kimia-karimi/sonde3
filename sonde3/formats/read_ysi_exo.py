@@ -130,11 +130,16 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
     utc=pytz.utc
 
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file.seek(0)
+    #if not isinstance(ysi_file, six.string_types):
+    ysi_file.seek(0)
+
+    #ysi_file = ysi_file.read().decode('utf-8')
+
+    #for line in ysi_file:
+    #    line.replace('\0','')
 
     #grab main file from header point, squash datetime row
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=['','na'], header = [0])
+    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(Native)': [0,1]}, sep=',',na_values=['','na'], header = [0], encoding='unicode_escape')
     #DF = DF.drop(DF.index[:header_row_index])
     #DF = DF.drop('Time (Fract. Sec)',1)
         #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
@@ -142,7 +147,7 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
     metadata = metadata.append([{'Model' : 'EXO'}])
-
+    
     utc=pytz.utc
     if tzinfo:
         localtime = tzinfo

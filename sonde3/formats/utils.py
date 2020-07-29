@@ -20,10 +20,21 @@ def match_param(DF,DEFINITIONS):
             col = list(col)
 
         submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
-        if len(col)> 1:
+
+        if len(col) > 2:
+            #print ("col length > 2")
+            #print (col, "our submatch: ", submatch)
+            match = submatch[submatch['unit'].str.contains(col[2])]
+            #print ("our match: ", match)
+            if not match.empty:
+                col = (str(match.iloc[0]['standard']))
+
+        elif len(col) > 1:
+            #print ("col length > 1")
+            #rint (col, "our submatch: ", submatch)
             if "Unnamed" not in col[1]:  #check for a null value in the units column
                 match = submatch[submatch['unit'].str.contains(col[1])]
-
+                #print ("our match: ", match)
             else:
                 col = (str(submatch.iloc[0]['standard']))
 
@@ -31,7 +42,8 @@ def match_param(DF,DEFINITIONS):
                 col = (str(match.iloc[0]['standard']))
 
         elif len(col) == 1:
-
+            #print ("col length  == 1")
+            #print (col, "our submatch: ", submatch)
             match = submatch[submatch['unit'].str.contains(col[0])]
             #print ("length of col", len(col), "col: ", col, "match: ", match, "submatch: ", submatch)
             if not match.empty:
