@@ -203,7 +203,7 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=
 
     #convert timezone to UTC and insert at front column
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
-    DF = DF.drop('Datetime_(Native)', 1)
+    DF = DF.drop('Datetime_(Native)',axis=1)
 
 
     #this submethod will match our read columns (tuple) to the master DEFINITION file

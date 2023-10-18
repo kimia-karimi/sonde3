@@ -16,27 +16,27 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     
     file_type = autodetect(filename)
 
-    if file_type is 'ysi_binary':
+    if file_type == 'ysi_binary':
         metadata, df = formats.read_ysi(filename, tzinfo)
-    elif file_type is 'ysi_exo2_csv':
+    elif file_type == 'ysi_exo2_csv':
         metadata, df = formats.read_ysi_exo2_csv(filename)
-    elif file_type is 'ysi_exo_csv':
+    elif file_type == 'ysi_exo_csv':
         metadata, df = formats.read_ysi_exo_csv(filename)
-    elif file_type is 'ysi_exo_backup':
+    elif file_type == 'ysi_exo_backup':
         metadata, df = formats.read_ysi_exo_backup(filename)
-    elif file_type is 'ysi_csv':
+    elif file_type == 'ysi_csv':
         metadata, df = formats.read_ysi_ascii(filename, tzinfo, ',', None, None)
-    elif file_type is 'ysi_text':
+    elif file_type == 'ysi_text':
         metadata, df = formats.read_ysi_ascii(filename, tzinfo, ',', None, [1, 2, 3])
-    elif file_type is 'ysi_csv_datetime':
+    elif file_type == 'ysi_csv_datetime':
         metadata, df = formats.read_ysi_ascii(filename, tzinfo, ',', [0])
-    elif file_type is 'ysi_tab':
+    elif file_type == 'ysi_tab':
         metadata, df = formats.read_ysi_ascii(filename, tzinfo, '\t')
-    elif file_type is 'hydrotech_csv':
+    elif file_type == 'hydrotech_csv':
         metadata, df = formats.read_hydrotech(filename, tzinfo, ',')
-    elif file_type is 'lowell_csv':
+    elif file_type == 'lowell_csv':
         metadata, df = formats.read_lowell(filename, tzinfo, ',')
-    elif file_type is 'txblend_csv':
+    elif file_type == 'txblend_csv':
         metadata, df = formats.read_txblend(filename, tzinfo, ',')
     else:
         warnings.warn("File format <%s> not supported in <%s>" % (str(file_type), str(filename)), stacklevel=2)

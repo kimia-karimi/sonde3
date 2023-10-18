@@ -56,8 +56,8 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
     
     #convert timezone to UTC and insert at front column
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
-    DF = DF.drop('Datetime_(Native)', 1)
-    DF = DF.drop('Datetime_(ascii)', 1)
+    DF = DF.drop('Datetime_(Native)', axis=1)
+    DF = DF.drop('Datetime_(ascii)', axis=1)
     #drop all the odd informational rows at bottom of file
     
     DF = match_param(DF,DEFINITIONS) 
@@ -66,7 +66,10 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
     raw_metadata = pd.read_csv(lowell_file, sep=delim, header=None,nrows=1)
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename'))
-    metadata = metadata.append([{'Manufacturer' : 'Lowell'}])
+    
+    metadata = pd.concat([metadata, pd.DataFrame([{'Manufacturer' : 'Lowell'}])], ignore_index=True)
+    
+    
     
     #head, tail = ntpath.split(lowell_file)
     #metadata = metadata.set_value([0], 'Filename' , tail)

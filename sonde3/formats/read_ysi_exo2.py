@@ -12,7 +12,7 @@ from .utils import match_param
 
 
 
-csv.field_size_limit(sys.maxsize)
+csv.field_size_limit(262144)  #setting to 256k  using sys.maxsize works on WDFT AWS prod, but crashes now with anaconda for windows
 
 def read_ysi_exo2_csv(ysi_file,delim=','):
     """

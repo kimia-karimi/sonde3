@@ -66,8 +66,8 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
 
     #convert timezone to UTC and insert at front column
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: x.replace(tzinfo=localtime).astimezone(utc)))
-    DF = DF.drop('Datetime_(Native)', 1)
-    DF = DF.drop('Datetime_(ascii)', 1)
+    DF = DF.drop('Datetime_(Native)', axis=1)
+    DF = DF.drop('Datetime_(ascii)', axis=1)
     #drop all the odd informational rows at bottom of file
 
 
