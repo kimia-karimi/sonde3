@@ -38,6 +38,8 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
         metadata, df = formats.read_lowell(filename, tzinfo, ',')
     elif file_type == 'txblend_csv':
         metadata, df = formats.read_txblend(filename, tzinfo, ',')
+    elif file_type == 'insitu_csv':
+        metadata, df = formats.read_insitu(filename)
     else:
         warnings.warn("File format <%s> not supported in <%s>" % (str(file_type), str(filename)), stacklevel=2)
         return pd.DataFrame(), pd.DataFrame()
@@ -279,6 +281,8 @@ def autodetect(filename):
             filetype =  'lcra_csv'
         elif lines[0].find(b'KorEXO') != -1:
             filetype = 'ysi_exo2_csv'
+        elif lines[0].find(b'Location Properties') != -1:
+            filetype = 'insitu_csv'
         elif lines[0].find(b'sep=') != -1:
             filetype = 'ysi_exo2_csv'
         elif lines[0].find(b"=") != -1:

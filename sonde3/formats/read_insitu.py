@@ -31,14 +31,49 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
     if not isinstance(aquatroll_file, six.string_types):
         aquatroll_file.seek(0)
     #grab 30 lines discover what the real header is, then trim the file
-    raw_metadata = pd.read_csv(aquatroll_file, sep=delim, engine='c',na_values=['','na', 'NaN'],header=None, nrows=6)
-    #header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
-    #raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
-    header_row_index = 8
+    #raw_metadata = pd.read_csv(aquatroll_file, sep=delim, engine='python',na_values=['','na', 'NaN'],header=None, nrows=15, error_bad_lines=False)
+    #file has odd number of columns, lets read a section for metadata to determine when we need to 'start' the full file:
+    
+    raw_metadata = pd.read_csv(aquatroll_file, header=None, sep='\n', nrows=10)
+    raw_metadata = raw_metadata[0].str.split('\s\|\s', expand=True)
+    
+    
+    header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
+    raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
+    metadata = raw_metadata.iloc[:header_row_index]
+    
+    
     if not isinstance(aquatroll_file, six.string_types):
         aquatroll_file.seek(0)
     #grab main file from header point, squash datetime row
-    DF = pd.read_csv(aquatroll_file, parse_dates={'Datetime_(UTC)': [0]}, sep=delim,na_values=['','na'], header = header_row_index)
+    DF = pd.read_csv(aquatroll_file, parse_dates={'Datetime_(UTC)': [0]}, sep=delim,na_values=['','na'], header = header_row_index, index_col=False)
     #DF = DF.drop(DF.index[:header_row_index])
+    """
+       Aquatroll files contain special formatting for the DO parameters that will break our entire package for definition conversion.
+       Instead of completely redesigning the entire package at this point, this is a hold-over stop-gap to fix the issue indivisually 
+       for the parameters of our interest.  Then, we can pass back to the definition matcher for the rest.
+    """
+    columns = list(DF.columns)  #have to cast to list, otherwise error in non-mutable index.
+    do_index = None
+    spc_index = None
+    charfu_index = None
+    for idx, i in enumerate(columns):
+        if "% Saturation" in i:
+            do_index=idx
+        if "Specific Conductivity" in i:
+            spc_index = idx
+        if "Chl-a Fluorescence" in i:
+            charfu_index = idx
+            
+    if do_index is not None:
+        columns[do_index] = "water_DO_%"   
+    if spc_index is not None:
+        columns[spc_index] = "SpCond uS/cm"  
+    if charfu_index is not None:
+        columns[charfu_index] = "Chlorophyll RFU"  
+        
+    DF.columns = columns
     
-    return DF
+    DF = match_param(DF,DEFINITIONS)
+    
+    return metadata, DF
