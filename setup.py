@@ -10,7 +10,7 @@ from setuptools import Command, setup, find_packages
 # but they could probably be a few versions lower
 setup(
     name='sonde3',
-    version='0.2',
+    version='3.11',
     license='BSD',
     author='Evan Turner',
     author_email='evan.turner@twdb.state.tx.us',
