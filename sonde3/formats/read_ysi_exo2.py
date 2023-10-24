@@ -31,7 +31,7 @@ def read_ysi_exo2_csv(ysi_file,delim=','):
 
     utc=pytz.utc
 
-
+    header_row_index = 8
     #localtime = pytz.timezone('US/Central')
 
     if not isinstance(ysi_file, six.string_types):
@@ -40,22 +40,34 @@ def read_ysi_exo2_csv(ysi_file,delim=','):
     #grab 30 lines discover what the real header is, then trim the file
 
     #since the YSI EXO2 files contain NULL bytes lets strip those out and just return as a string isntead:
-    ysi_file = ysi_file.read().decode('ISO-8859-1')
+    if not isinstance(ysi_file, six.string_types):
+        ysi_file = ysi_file.read().decode('ISO-8859-1')
 
-    for line in ysi_file:
-        line.replace('\0','')
+        for line in ysi_file:
+            line.replace('\0','')
+        DF = pd.read_csv(io.StringIO(ysi_file), engine='python', parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=[''],   header = header_row_index, encoding='utf-8')
 
+    else:
+        fid = open(ysi_file, 'rb')
+        ysi_file = fid.read().decode('UTF-16')
+        DF = pd.read_csv(io.StringIO(ysi_file), parse_dates={'Datetime_(Native)': [0,1]}, engine='c',na_values=[''], sep=',',skiprows=9)
+       
+    #DF = DF[0].str.split('\s\|\s', expand=True)
+    
+    return None, DF
     #These files no longer contain very meaninful metdata - worth the effort to parse the unstructured
     #string without making pandas go crazy.
 
 
     #raw_metadata = pd.read_csv(io.StringIO(ysi_file), sep=delim,header=None, nrows=5)
     #header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
-    header_row_index = 8
+    #header_row_index = 8
     #raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
     #grab main file from header point, squash datetime row
 
-    DF = pd.read_csv(io.StringIO(ysi_file), engine='python', parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=[''],   header = header_row_index, encoding='utf-8')
+    #DF = pd.read_csv(io.StringIO(ysi_file), engine='python', sep=delim,na_values=[''], encoding='utf-8')
+    #print(DF.head())
+    
     DF = DF.drop(DF.index[:header_row_index])
     DF = DF.drop('Time (Fract. Sec)',1)
     #now lets drop any rows that have bad data - this occurs when the sonde restarts
