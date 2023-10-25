@@ -2,10 +2,40 @@ import sonde3
 import pandas
 import unittest
 import sys
+import os
 
+def directory_runner(self,directory,record_length):
+    """
+    method traverses a directory of files to open with sonde3.
+    """
+    for filename in os.listdir(directory):
+        with self.subTest(filename=filename):
+                
+            f = os.path.join(directory, filename)
+            try:
+                metadata, df = sonde3.sonde(f)
+            except:
+                self.fail(msg='failed on file %s' % filename)
+            self.assertGreaterEqual(len(df), record_length)
+            
+            
+
+class TestSonde_CheckBulkFiles(unittest.TestCase):
+    """
+    Tests a directory of files to see if the action does not specifically raise an error on each sonde file
+    """
+    def test_ysi(self):
+        directory = "test/testfiles/ysi"
+        directory_runner(self,directory,32)
+    def test_aquatroll(self):
+        directory = "test/testfiles/aquatroll"
+        directory_runner(self,directory,100)
+    def test_lowell(self):
+        directory = "test/testfiles/lowell"
+        directory_runner(self,directory,300)
 
 class TestSonde_autodetect_file(unittest.TestCase):
-   
+ 
     def test_ysi_binary(self):
         test_string = sonde3.autodetect("tests/ysi_test_files/SA08.dat")
         self.assertEqual(test_string, 'ysi_binary')
@@ -54,13 +84,19 @@ class TestSonde_autodetect_file(unittest.TestCase):
     def test_hydrolab_txt_b(self):
         test_string = sonde3.autodetect("tests/hydrolab_test_files/SANT_20060213_CST_HY4077_000.txt")
         self.assertEqual(test_string,   'hydrolab_csv')
+    def test_hydrotech(self):
+        test_string = sonde3.autodetect("tests/hydrotech_test_files/0109CONT.csv")
+        self.assertEqual(test_string,   'hydrotech_csv')
     
         
 
 class TestSonde_sonde_filehandle(unittest.TestCase):
-    def test_pandas_version(self):
-        self.assertEqual(pandas.__version__, "0.25.3")
-    
+    """
+    Specific file tests for each method to make sure sonde3 returns the exact number of rows for the file.
+    This speficic class tests a file to be handed to the library, as you would be running it individually as a 
+    stand-alone product.
+    """
+   
     def test_sonde_ysi_binary(self):
         metadata, df = sonde3.sonde("tests/ysi_test_files/SA08.dat")
         self.assertEqual(len(df), 700)
@@ -85,8 +121,10 @@ class TestSonde_sonde_filehandle(unittest.TestCase):
                
 
 class TestSonde_sonde_filepointer(unittest.TestCase):
-   
-    
+    """
+    Specific file tests for each method to make sure sonde3 returns the exact number of rows for the file.
+    This speficic class tests a filepointer to be passed to sonde3, as it would be for the WDFT package.
+    """
     def test_sonde_ysi_binary(self):
         fid = open("tests/ysi_test_files/SA08.dat", 'rb')
         metadata, df = sonde3.sonde(fid)
@@ -125,6 +163,9 @@ class TestSonde_sonde_filepointer(unittest.TestCase):
       
     
 class TestSonde_dependencies(unittest.TestCase):
+    """
+    Tests the version of libraries expected and known to run correctly for this package.
+    """
     def test_pandas_version(self):
         self.assertEqual(pandas.__version__, "0.25.3")
     def test_python(self):
