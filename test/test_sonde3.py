@@ -192,7 +192,28 @@ class TestSonde_dependencies(unittest.TestCase):
     def test_python(self):
         self.assertEqual(sys.version[:5], "3.6.8")
 
-                                
+class TestSonde_DataManipulation(unittest.TestCase):   
+    """
+    Testing mathematical procedures that change values
+    """
+    def test_remove_invalids(self):
+        metadata, df = sonde3.sonde("test/testfiles/behaviortesting/negative-values.CDF")
+        self.assertGreaterEqual(df['water_specific_conductivity_mS/cm'].min(), 0)  
+    def test_preserve_invalids(self):
+        metadata, df = sonde3.sonde("test/testfiles/behaviortesting/negative-values.CDF", remove_invalids=False)
+        self.assertLess(df['water_specific_conductivity_mS/cm'].min(), 0)  
+    def test_twdbparams_true(self):
+        metadata, df = sonde3.sonde("test/testfiles/behaviortesting/negative-values.CDF", twdbparams=True)
+        if 'water_dissolved_oxygen_percent_saturation' in df.columns:
+            pass
+        else:
+            self.fail(m="column did not include TWDB specific parameter")
+    def test_twdbparams_false(self):
+        metadata, df = sonde3.sonde("test/testfiles/behaviortesting/negative-values.CDF", twdbparams=False)
+        if 'water_dissolved_oxygen_percent_saturation' in df.columns:
+            self.fail(m="column included wrong parameter name for twdbparams=False")
+        else:
+            pass
             
 if __name__ == '__main__':
     unittest.main()
