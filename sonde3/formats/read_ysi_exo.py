@@ -130,8 +130,8 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
     utc=pytz.utc
 
-    #if not isinstance(ysi_file, six.string_types):
-    ysi_file.seek(0)
+    if not isinstance(ysi_file, six.string_types):
+        ysi_file.seek(0)
 
     #ysi_file = ysi_file.read().decode('utf-8')
 

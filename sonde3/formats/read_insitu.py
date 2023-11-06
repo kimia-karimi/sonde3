@@ -29,7 +29,6 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
 
 
     if not isinstance(aquatroll_file, six.string_types):
-        print ("seeking back to zero")
         aquatroll_file.seek(0)
     #grab 30 lines discover what the real header is, then trim the file
     #raw_metadata = pd.read_csv(aquatroll_file, sep=delim, engine='python',na_values=['','na', 'NaN'],header=None, nrows=15, error_bad_lines=False)
