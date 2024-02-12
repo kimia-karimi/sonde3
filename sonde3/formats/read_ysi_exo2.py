@@ -30,82 +30,49 @@ def read_ysi_exo2_csv(ysi_file,delim=','):
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
 
     utc=pytz.utc
-
-    header_row_index = 8
-    #localtime = pytz.timezone('US/Central')
-
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file.seek(0)
-    #grab 30 lines discover what the real header is, then trim the file
-    #grab 30 lines discover what the real header is, then trim the file
-
-    #since the YSI EXO2 files contain NULL bytes lets strip those out and just return as a string isntead:
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file = ysi_file.read().decode('ISO-8859-1')
-
-        for line in ysi_file:
-            line.replace('\0','')
-        DF = pd.read_csv(io.StringIO(ysi_file), engine='python', parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=[''],   header = header_row_index, encoding='utf-8')
-
-    else:
-        fid = open(ysi_file, 'rb')
-        ysi_file = fid.read().decode('UTF-16')
-        DF = pd.read_csv(io.StringIO(ysi_file), parse_dates={'Datetime_(Native)': [0,1]}, engine='c',na_values=[''], sep=',',skiprows=9)
-       
-    #DF = DF[0].str.split('\s\|\s', expand=True)
-    
-    return None, DF
-    #These files no longer contain very meaninful metdata - worth the effort to parse the unstructured
-    #string without making pandas go crazy.
-
-
-    #raw_metadata = pd.read_csv(io.StringIO(ysi_file), sep=delim,header=None, nrows=5)
-    #header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
-    #header_row_index = 8
-    #raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
-    #grab main file from header point, squash datetime row
-
-    #DF = pd.read_csv(io.StringIO(ysi_file), engine='python', sep=delim,na_values=[''], encoding='utf-8')
-    #print(DF.head())
-    
-    DF = DF.drop(DF.index[:header_row_index])
-    DF = DF.drop('Time (Fract. Sec)',1)
-    #now lets drop any rows that have bad data - this occurs when the sonde restarts
-    DF = DF[DF['Datetime_(Native)'] != ' ']
-    DF = DF[DF['Datetime_(Native)'] != None]
-    DF = DF[DF['Datetime_(Native)'] != "Date (MM/DD/YYYY) Time (HH:mm:ss)"]
-    #pd.set_option('display.max_rows', None)
-    #print (DF['Datetime_(Native)'])
-    #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
-
-    metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
-                                     'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
-
-    DF['Datetime_(Native)'] = pd.to_datetime(DF['Datetime_(Native)'])
     localtime = pytz.timezone('US/Central')
+
+    ysi_file.seek(0)
+    ysi_file_download = ysi_file.read().decode('ISO-8859-1')
+   
+    
+    num = 0
+ 
+    ysi_file_download = ysi_file_download.replace('\x00','')
+    #ysi_file_download = ysi_file_download.replace('\r','\n')
+    
+    #determine the correct header row
+    header_row_index = -1
+    for i in ysi_file_download.splitlines(False):
+        header_row_index+=1
+       
+        if 'Date' in i:
+            break
+    
+    DF = pd.read_csv(io.StringIO(ysi_file_download), engine='python', skip_blank_lines=False, parse_dates={'Datetime_(Native)': [0,1]}, sep=delim,na_values=[''], header = header_row_index, encoding='utf-16')
+
+    ysi_file.close()
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
-    DF = DF.drop(['Site Name'], axis=1)
 
+    # stripping out all of the funky non-ascii characters out of the file so we can match properly
+    # otherwise EXO degree mark will break the match algorithm
+    new_cols = []
+    for col in DF.columns:
+        new_cols.append( ''.join(i for i in col if ord(i)<128))
 
-    #this method strips out the crazy binary in the columns
-    newcols = []
-    stripped = lambda s: "".join(i for i in s if 31 < ord(i) < 127)
-    for k in DF.columns:
-        newcols.append(stripped(k))
+    DF.columns = new_cols
 
-    DF.columns = newcols
-
+    if 'Site' in DF:
+        DF = DF.drop(columns=['Site'])
+    if 'User ID' in DF:
+        DF = DF.drop(columns=['User ID'])
+    if 'Unit ID' in DF:
+        DF = DF.drop(columns=['Unit ID'])
+    if 'Time (Fract. Sec)' in DF:
+        DF = DF.drop(columns=['Time (Fract. Sec)'])
+        
     DF = match_param(DF,DEFINITIONS)
-    #now convert all data rows to floats...
-    #move this to separate function if I have to do this more than for hydrotechs
-    floater = lambda x: float(x)
-
-    #split set
-    dt_column = DF.iloc[:,0]
-    data = DF.iloc[:,1:]
-    data = data.applymap(floater)
-
-    DF = pd.concat([dt_column,data], axis=1)
-
-    return metadata, DF
+    
+    
+    return None, DF

@@ -20,7 +20,7 @@ def read_hydrotech(hydrotech_file, tzinfo=None ,delim=None):
         localtime = tzinfo
     else:
         localtime = pytz.timezone('US/Central')
-        warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+        #warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
 
     package_directory = os.path.dirname(os.path.abspath(__file__))
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')

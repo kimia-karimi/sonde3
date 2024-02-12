@@ -45,15 +45,10 @@ def read_ysi(ysi_file, tzinfo=None):
         :type tzinfo: `datetime.tzinfo`
         :returns:  `pandas.DataFrame`, `Pandas.DataFrame`
         """
-        if hasattr(ysi_file, "read"):
-            fid = ysi_file
-            fid.seek(0)
-        else:
-            try:
-                fid = open(ysi_file, 'rb')
-            except:
-                print("Error: Could not open file <%s> \n" % ysi_file)
-                raise
+        
+        fid = ysi_file
+        fid.seek(0)
+       
 
 
 
@@ -63,7 +58,7 @@ def read_ysi(ysi_file, tzinfo=None):
         else:
             localtime = pytz.timezone('US/Central')
 
-            warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+            #warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
         package_directory = os.path.dirname(os.path.abspath(__file__))
         YSI_DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/ysi_definitions.csv"))
         DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
@@ -177,19 +172,18 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=
         localtime = tzinfo
     else:
         localtime = pytz.timezone('US/Central')
-        warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+        #warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
 
     if datetimecols is None:
         datetimecols = [0,1]
 
     if header is None:
         header = [0,1]
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file.seek(0)
-
+   
+    ysi_file.seek(0)
     DF = pd.read_csv(ysi_file,parse_dates={'Datetime_(Native)': datetimecols}, sep=delim, header=header,na_values=['','na'])
-
-    #print (DF.columns)
+    
+   
     fixed_columns = []
     for col in DF.columns:
         if len(col) > 2:
@@ -206,29 +200,6 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)',axis=1)
 
-
-    #this submethod will match our read columns (tuple) to the master DEFINITION file
-    """for col in DF.columns:
-        #print "matching col:", col
-        if 'Datetime_(UTC)' in col:
-            continue
-        param = col.split()
-
-        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(param[0])]
-
-        if "Unnamed" not in col[1]:  #check for a null value in the units column
-            match = submatch[submatch['unit'].str.contains(param[1])]
-
-        else:
-            DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
-            print (str(submatch.iloc[0]['standard']))
-
-        if not match.empty:
-            DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
-            #print (str(match.iloc[0]['standard']))
-        else:
-            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-    """
     DF = match_param(DF,DEFINITIONS)
 
 
@@ -241,4 +212,6 @@ def read_ysi_ascii(ysi_file, tzinfo=None ,delim=None, datetimecols=None, header=
     metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
     metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
 
+    ysi_file.close()
+    
     return metadata, DF

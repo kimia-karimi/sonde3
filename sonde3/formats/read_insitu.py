@@ -28,8 +28,8 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
 
 
 
-    if not isinstance(aquatroll_file, six.string_types):
-        aquatroll_file.seek(0)
+   
+    aquatroll_file.seek(0)
     #grab 30 lines discover what the real header is, then trim the file
     #raw_metadata = pd.read_csv(aquatroll_file, sep=delim, engine='python',na_values=['','na', 'NaN'],header=None, nrows=15, error_bad_lines=False)
     #file has odd number of columns, lets read a section for metadata to determine when we need to 'start' the full file:
@@ -39,8 +39,8 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
     
 
 
-    if not isinstance(aquatroll_file, six.string_types):
-        aquatroll_file.seek(0)
+    
+    aquatroll_file.seek(0)
     #grab main file from header point, squash datetime row
     DF = pd.read_csv(aquatroll_file, parse_dates={'Datetime_(UTC)': [0]}, sep=delim,na_values=['','na'], header = header_row_index, index_col=False)
     #DF = DF.drop(DF.index[:header_row_index])
@@ -71,5 +71,5 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
     DF.columns = columns
 
     DF = match_param(DF,DEFINITIONS)
-
+    aquatroll_file.close()
     return metadata, DF

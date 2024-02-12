@@ -13,35 +13,44 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
     dissolved oxygen (mg/L) if the required parameters are present
     """
 
+    #convert file name to a filepointer
+    if hasattr(filename, "read"):
+        fid = filename
+    else:
+        fid = open(filename, 'rb')
     
-    file_type = autodetect(filename)
+    file_type = autodetect(fid)
 
     if file_type == 'ysi_binary':
-        metadata, df = formats.read_ysi(filename, tzinfo)
+        metadata, df = formats.read_ysi(fid, tzinfo)
     elif file_type == 'ysi_exo2_csv':
-        metadata, df = formats.read_ysi_exo2_csv(filename)
+        metadata, df = formats.read_ysi_exo2_csv(fid)
     elif file_type == 'ysi_exo_csv':
-        metadata, df = formats.read_ysi_exo_csv(filename)
+        metadata, df = formats.read_ysi_exo_csv(fid)
     elif file_type == 'ysi_exo_backup':
-        metadata, df = formats.read_ysi_exo_backup(filename)
+        metadata, df = formats.read_ysi_exo_backup(fid)
     elif file_type == 'ysi_csv':
-        metadata, df = formats.read_ysi_ascii(filename, tzinfo, ',', None, None)
+        metadata, df = formats.read_ysi_ascii(fid, tzinfo, ',', None, None)
     elif file_type == 'ysi_text':
-        metadata, df = formats.read_ysi_ascii(filename, tzinfo, ',', None, [1, 2, 3])
+        metadata, df = formats.read_ysi_ascii(fid, tzinfo, ',', None, [1, 2, 3])
+    elif file_type == 'ysi_text_nocomma':
+        metadata, df = formats.read_ysi_ascii(fid, tzinfo, '\t', None, [1,2])
     elif file_type == 'ysi_csv_datetime':
-        metadata, df = formats.read_ysi_ascii(filename, tzinfo, ',', [0])
+        metadata, df = formats.read_ysi_ascii(fid, tzinfo, ',', [0])
     elif file_type == 'ysi_tab':
-        metadata, df = formats.read_ysi_ascii(filename, tzinfo, '\t')
+        metadata, df = formats.read_ysi_ascii(fid, tzinfo, '\t')
     elif file_type == 'hydrotech_csv':
-        metadata, df = formats.read_hydrotech(filename, tzinfo, ',')
+        metadata, df = formats.read_hydrotech(fid, tzinfo, ',')
     elif file_type == 'lowell_csv':
-        metadata, df = formats.read_lowell(filename, tzinfo, ',')
+        metadata, df = formats.read_lowell(fid, tzinfo, ',')
     elif file_type == 'txblend_csv':
-        metadata, df = formats.read_txblend(filename, tzinfo, ',')
+        metadata, df = formats.read_txblend(fid, tzinfo, ',')
+    elif file_type == 'twdb_coastal':
+        metadata, df = formats.read_twdb_coastal(fid)
     elif file_type == 'insitu_csv':
-        metadata, df = formats.read_insitu(filename)
+        metadata, df = formats.read_insitu(fid)
     else:
-        warnings.warn("File format <%s> not supported in <%s>" % (str(file_type), str(filename)), stacklevel=2)
+        warnings.warn("File format <%s> not supported " % (str(file_type) ), stacklevel=2)
         return pd.DataFrame(), pd.DataFrame()
 
     if not df.empty:
@@ -89,8 +98,7 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
                     newcolumns.append(col)
 
             df.columns = newcolumns
-
-    # df = df.set_index(df['Datetime_(UTC)'])
+    
     return metadata, df
 
 
@@ -211,7 +219,7 @@ def autodetect(filename):
         fid.seek(0)
         lines = [fid.readline() for i in range(1000)]
         # lines = list(fid)
-        # print (lines[0][0], lines[0])
+       
         if lines[0].find(b'PDF') != -1:
             filetype =  'pdf'
         if lines[0][0] == 65:
@@ -245,7 +253,7 @@ def autodetect(filename):
             else:
                 filetype = 'unsupported_bin'
 
-        # fid.close()
+        
     else:
         # fid = open(filename, 'r')
         fid.seek(0)
@@ -285,8 +293,10 @@ def autodetect(filename):
             filetype = 'insitu_csv'
         elif lines[0].find(b'sep=') != -1:
             filetype = 'ysi_exo2_csv'
-        elif lines[0].find(b"=") != -1:
+        elif (lines[0].find(b"=") != -1 ) and (lines[0].find(b",") != -1):
             filetype =  'ysi_text'
+        elif (lines[0].find(b"=") != -1 ) and lines[0].find(b","):
+            filetype =  'ysi_text_nocomma'
         elif lines[0].find(b'##YSI ASCII Datafile=') != -1:
             filetype =  'ysi_ascii'
         elif (lines[0].find(b"Date") > -1 )and (lines[1].find(b"M/D/Y") > -1 )and (lines[0].find(b"\t") > -1):
@@ -305,13 +315,14 @@ def autodetect(filename):
         elif lines[0].lower().find(b'kor export file') != -1:
             filetype = 'ysi_exo_csv'
         elif lines[0].find(b"User ID") != -1:
-                    filetype = 'ysi_exo_backup'
+            filetype = 'ysi_exo_backup'
+        elif b"waterdatafortexas.org/coastal" in lines[1]:
+            filetype =  'twdb_coastal'
 
         else:
-            #print (lines[0])
             filetype = 'unsupported_ascii'
 
-    # fid.close()
+    
     return filetype
 
 
@@ -324,7 +335,6 @@ def merge_lowell():
     for fil in os.listdir(path):
         # check if file is a tiltmeter current file
         if fil.endswith('_CR.TXT'):
-            print ("got one")
             # extract serial number
             serial = fil[:7]
             # extract deployment name

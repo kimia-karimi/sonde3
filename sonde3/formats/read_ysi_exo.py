@@ -29,17 +29,23 @@ def read_ysi_exo_csv(ysi_file,delim=None):
 
     #localtime = pytz.timezone('US/Central')
 
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file.seek(0)
+    
+    ysi_file.seek(0)
+    
     #grab 30 lines discover what the real header is, then trim the file
-    raw_metadata = pd.read_csv(ysi_file, sep=delim, engine='python',na_values=['','na'],header=None, nrows=30)
+    ysi_file.seek(0)
+    ysi_file = ysi_file.read().decode('ISO-8859-1')
+    
+    
+    raw_metadata = pd.read_csv(io.StringIO(ysi_file), engine='python',na_values=['','na'],header=None, nrows=30,encoding = "ISO-8859-1" )
     header_row_index = raw_metadata.loc[raw_metadata[0].str.contains("Date")==True].index[0]
     raw_metadata = raw_metadata.drop(raw_metadata.index[(header_row_index-2):])
-
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file.seek(0)
+    #print(header_row_index, raw_metadata)
+   
+    
+    
     #grab main file from header point, squash datetime row
-    DF = pd.read_csv(ysi_file, parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim,na_values=['','na'], header = header_row_index)
+    DF = pd.read_csv(io.StringIO(ysi_file), engine='python', parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim,na_values=['','na'], header = header_row_index, encoding = "ISO-8859-1")
     DF = DF.drop(DF.index[:header_row_index])
     DF = DF.drop('Time (Fract. Sec)',1)
     #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
@@ -75,26 +81,14 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     metadata.at[0, 'Sensor_Firmware']=  sensors[2].str.cat(sep=';')
 
     DF = DF.drop(['Site Name'], axis=1)
-    """for col in DF.columns:
-        if 'Datetime_(UTC)' in col:
-            continue
-        param = col.split()
 
-        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(param[0])]
+    new_cols = []
+    
+    for col in DF.columns:
+        new_cols.append( ''.join(i for i in col if ord(i)<128))
 
-        if "Unnamed" not in col[1]:  #check for a null value in the units column
-            match = submatch[submatch['unit'].str.contains(param[1])]
-
-        else:
-            DF = DF.rename(columns={col: str(submatch.iloc[0]['standard'])})
-            #print (str(submatch.iloc[0]['standard']))
-
-        if not match.empty:
-            DF = DF.rename(columns={col: str(match.iloc[0]['standard'])})
-            #print (str(match.iloc[0]['standard']))
-        else:
-            warnings.warn("Could not match parameter <%s> to definition file" %str(col) , stacklevel=2)
-    """
+    DF.columns = new_cols
+    
     DF = match_param(DF,DEFINITIONS)
 
 
@@ -130,8 +124,8 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
     utc=pytz.utc
 
-    if not isinstance(ysi_file, six.string_types):
-        ysi_file.seek(0)
+    
+    ysi_file.seek(0)
 
     #ysi_file = ysi_file.read().decode('utf-8')
 
@@ -154,7 +148,7 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
     else:
         localtime = pytz.timezone('US/Central')
 
-        warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+        #warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
     DF = DF.drop('Datetime_(Native)', 1)
 

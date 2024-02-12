@@ -15,6 +15,7 @@ def read_txblend(txblend_file, tzinfo=None ,delim=None):
 
 
     """
+    
     utc=pytz.utc 
     if tzinfo:
         localtime = tzinfo
@@ -25,8 +26,8 @@ def read_txblend(txblend_file, tzinfo=None ,delim=None):
 
     package_directory = os.path.dirname(os.path.abspath(__file__))
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
-    if not isinstance(txblend_file, six.string_types):
-        txblend_file.seek(0)
+    
+    txblend_file.seek(0)
     DF = pd.read_csv(txblend_file, sep=delim, parse_dates={'Datetime_(ascii)': [0]},\
                       na_values=['','na', '999999', '#'], engine='c',encoding='cp1252', \
                       names = list(range(0,20)))
@@ -52,7 +53,7 @@ def read_txblend(txblend_file, tzinfo=None ,delim=None):
     '''
     columns[0] = "Datetime_(ascii)"
     DF.columns = columns
-    DF = DF.drop(DF.index[:2])
+    DF = DF.drop(DF.index[:1])
     DF = pd.concat([DF, pd.to_datetime(DF['Datetime_(ascii)']).rename('Datetime_(Native)')], axis=1)
     
     #convert timezone to UTC and insert at front column
@@ -63,17 +64,8 @@ def read_txblend(txblend_file, tzinfo=None ,delim=None):
 
     # we don't need to match the parameters of the TXBLEND file
     #DF = match_param(DF,DEFINITIONS) 
-    if not isinstance(txblend_file, six.string_types):
-        txblend_file.seek(0)
-    raw_metadata = pd.read_csv(txblend_file, sep=delim, header=None,nrows=1)
-    metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Time', \
-                                     'Deployment_Start_Time', 'Deployment_Stop_Time','Filename'))
-    metadata = metadata.append([{'Manufacturer' : 'None'}])
+   
     
-    #head, tail = ntpath.split(txblend_file)
-    #metadata = metadata.set_value([0], 'Filename' , tail)
-    metadata['Deployment_Start_Time'] = DF['Datetime_(UTC)'].iloc[0]
-    metadata['Deployment_Stop_Time'] = DF['Datetime_(UTC)'].iloc[-1]
     
 
     #now convert all data rows to floats...
@@ -87,5 +79,8 @@ def read_txblend(txblend_file, tzinfo=None ,delim=None):
 
     DF = pd.concat([dt_column,data], axis=1)
 
-    return metadata, DF
+    txblend_file.close()
+    DF.sort_index(inplace=True)
+    
+    return None, DF
 

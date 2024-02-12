@@ -20,13 +20,15 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
         localtime = tzinfo
     else:
         localtime = pytz.timezone('US/Central')
-        warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
+        #warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
 
     package_directory = os.path.dirname(os.path.abspath(__file__))
     DEFINITIONS = pd.read_csv(os.path.join(package_directory,'..',"data/definitions.csv"), encoding='cp1252')
-    if not isinstance(lowell_file, six.string_types):
-        lowell_file.seek(0)
-    DF = pd.read_csv(lowell_file, sep=delim, parse_dates={'Datetime_(ascii)': [0]},\
+    
+    lowell_file.seek(0)
+    lowell_file = lowell_file.read().decode('ISO-8859-1')
+    
+    DF = pd.read_csv(io.StringIO(lowell_file), sep=delim, parse_dates={'Datetime_(ascii)': [0]},\
                       na_values=['','na', '999999', '#'], engine='c',encoding='cp1252', \
                       names = list(range(0,20)))
 
@@ -61,9 +63,10 @@ def read_lowell(lowell_file, tzinfo=None ,delim=None):
     #drop all the odd informational rows at bottom of file
     
     DF = match_param(DF,DEFINITIONS) 
-    if not isinstance(lowell_file, six.string_types):
-        lowell_file.seek(0)
-    raw_metadata = pd.read_csv(lowell_file, sep=delim, header=None,nrows=1)
+    
+    
+    
+    raw_metadata = pd.read_csv(io.StringIO(lowell_file), sep=delim, header=None,nrows=1)
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number','Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename'))
     
