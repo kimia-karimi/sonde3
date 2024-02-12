@@ -13,4 +13,4 @@ from .sonde import calculate_salinity_psu
 from .sonde import calculate_do_mgl
 from .sonde import merge_lowell
 LOGGING = False
-__version__=3.11
+__version__=3.2
