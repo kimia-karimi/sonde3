@@ -33,8 +33,12 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
     #grab 30 lines discover what the real header is, then trim the file
     #raw_metadata = pd.read_csv(aquatroll_file, sep=delim, engine='python',na_values=['','na', 'NaN'],header=None, nrows=15, error_bad_lines=False)
     #file has odd number of columns, lets read a section for metadata to determine when we need to 'start' the full file:
+    # import pdb;pdb.set_trace()
+    # metadata = pd.read_csv(aquatroll_file, header=None, engine='c', sep='\n', nrows=9)
+    lines = aquatroll_file.readlines()
+    metadata_lines = lines[:9]
+    metadata = pd.DataFrame([line.strip() for line in metadata_lines])
 
-    metadata = pd.read_csv(aquatroll_file, header=None, engine='c', sep='\n', nrows=9)
     header_row_index = 8 #will always be row 8 in aquatroll, which is very handy indead!
     
 
