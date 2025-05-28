@@ -9,3 +9,4 @@ from .read_txblend import read_txblend
 from .read_twdb import read_twdb_coastal
 from .read_insitu import read_insitu
 from .utils import match_param
+from .read_aquatroll600 import read_aquatroll600
