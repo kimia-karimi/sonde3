@@ -5,6 +5,7 @@ Temp,C,water_temp_C
 �C,�C,water_temp_C
 C,C,water_temp_C
 Temperature,C,water_temp_C
+Temperature,°C,water_temp_C
 Depth,meters,water_depth_m_nonvented
 Depth,m,water_depth_m_nonvented
 DEPm,DEPm,water_depth_m_nonvented
