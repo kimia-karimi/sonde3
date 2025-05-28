@@ -29,7 +29,23 @@ def directory_runner(self,directory, test_column):
                 self.fail(msg='failed on file %s' % filename)
             self.assertIn(test_column, df.columns)
             
-            
+class TestSonde_Single(unittest.TestCase):
+    """
+    Class to test a single file for development purposes
+    
+    """
+    def test_aquatroll600(self):
+        test_column = 'seawater_salinity'
+        directory = "test/testfiles/aquatroll"
+        filename = "OBB_TEST.csv"
+        f = os.path.join(directory, filename)
+        f = open(f, 'rb')
+        try:
+            metadata, df = sonde3.sonde(f, twdbparams=True)
+        except:
+            f.close()
+            self.fail(msg='failed on file %s' % filename)
+        self.assertIn(test_column, df.columns)            
 
 class TestSonde_CheckBulkFiles(unittest.TestCase):
     
