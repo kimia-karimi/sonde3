@@ -292,10 +292,10 @@ class TestSonde_dependencies(unittest.TestCase):
     """
     @ignore_warnings
     def test_pandas_version(self):
-        self.assertEqual(pandas.__version__, "1.1.5")
+        self.assertEqual(pandas.__version__, "2.2.3")
     @ignore_warnings
     def test_python(self):
-        self.assertEqual(sys.version[:5], "3.6.8")
+        self.assertEqual(sys.version[:4], "3.11")
 
 class TestSonde_DataManipulation(unittest.TestCase):   
     """

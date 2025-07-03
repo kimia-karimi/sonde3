@@ -47,7 +47,7 @@ def read_ysi_exo_csv(ysi_file,delim=None):
     #grab main file from header point, squash datetime row
     DF = pd.read_csv(io.StringIO(ysi_file), engine='python', parse_dates={'Datetime_(UTC)': [0,1]}, sep=delim,na_values=['','na'], header = header_row_index, encoding = "ISO-8859-1")
     DF = DF.drop(DF.index[:header_row_index])
-    DF = DF.drop('Time (Fract. Sec)',1)
+    DF = DF.drop('Time (Fract. Sec)',axis=1)
     #DF['Datetime_(UTC)'] = DF['Datetime_(UTC)'].values.astype('datetime64[s]')
 
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
@@ -65,7 +65,7 @@ def read_ysi_exo_csv(ysi_file,delim=None):
         DF = DF.drop('Datetime_(Native)', 1)
 
 
-    metadata = metadata.append([{'Model' : 'EXO'}])
+    metadata = pd.concat([metadata, pd.DataFrame([{'Model': 'EXO'}])], ignore_index=True)
     metadata.at[0, 'Manufacturer']= 'YSI'
     metadata.at[0, 'Instrument_Serial_Number']= raw_metadata.iloc[4][1].replace('Sonde ', '')
     metadata.at[0, 'Station' ]=raw_metadata.iloc[6][1]
@@ -140,7 +140,7 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
 
     metadata = pd.DataFrame(columns=('Manufacturer', 'Instrument_Serial_Number', 'Sensor_Serial_Numbers', 'Model','Station','Deployment_Setup_Time', \
                                      'Deployment_Start_Time', 'Deployment_Stop_Time','Filename','User','Averaging','Firmware', 'Sensor_Firmware'))
-    metadata = metadata.append([{'Model' : 'EXO'}])
+    metadata = pd.concat([metadata, pd.DataFrame([{'Model': 'EXO'}])], ignore_index=True)
     
     utc=pytz.utc
     if tzinfo:
@@ -150,7 +150,7 @@ def read_ysi_exo_backup(ysi_file,delim=None,tzinfo=None):
 
         #warnings.warn("Info: No time zone was set for file, assuming records are recorded in CST" , stacklevel=2)
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
-    DF = DF.drop('Datetime_(Native)', 1)
+    DF = DF.drop('Datetime_(Native)', axis=1)
 
     # stripping out all of the funky non-ascii characters out of the file so we can match properly
     # otherwise EXO degree mark will break the match algorithm

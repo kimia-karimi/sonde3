@@ -53,7 +53,7 @@ def read_ysi_exo2_csv(ysi_file,delim=','):
 
     ysi_file.close()
     DF.insert(0,'Datetime_(UTC)' ,  DF['Datetime_(Native)'].map(lambda x: localtime.localize(x).astimezone(utc)))
-    DF = DF.drop('Datetime_(Native)', 1)
+    DF = DF.drop('Datetime_(Native)', axis=1)
 
     # stripping out all of the funky non-ascii characters out of the file so we can match properly
     # otherwise EXO degree mark will break the match algorithm

@@ -49,6 +49,8 @@ def sonde(filename, tzinfo=None, remove_invalids=True, twdbparams=False):
         metadata, df = formats.read_twdb_coastal(fid)
     elif file_type == 'insitu_csv':
         metadata, df = formats.read_insitu(fid)
+    elif file_type == 'aquatroll600_csv':
+        metadata, df = formats.read_aquatroll600(fid)
     else:
         warnings.warn("File format <%s> not supported " % (str(file_type) ), stacklevel=2)
         return pd.DataFrame(), pd.DataFrame()
@@ -260,7 +262,7 @@ def autodetect(filename):
 
         # If fails we read an unsupported binary by mistake, so pass that to caller
         try:
-            lines = [fid.readline() for i in range(3)]
+            lines = [fid.readline() for i in range(14)]
         except:
             filetype =  'unsupported_binary'
             return filetype
@@ -289,6 +291,8 @@ def autodetect(filename):
             filetype =  'lcra_csv'
         elif lines[0].find(b'KorEXO') != -1:
             filetype = 'ysi_exo2_csv'
+        elif lines[13].find(b'Aqua TROLL 600') != -1:
+            filetype = 'aquatroll600_csv'
         elif lines[0].find(b'Location Properties') != -1:
             filetype = 'insitu_csv'
         elif lines[0].find(b'sep=') != -1:

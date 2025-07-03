@@ -9,7 +9,7 @@ import six
 import ntpath
 from .utils import match_param
 
-def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
+def read_aquatroll600(aquatroll_file, tzinfo=None ,delim=None):
     """ Reads a proprietary format insitu file
 
 
@@ -39,7 +39,7 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
     metadata_lines = lines[:9]
     metadata = pd.DataFrame([line.strip() for line in metadata_lines])
 
-    header_row_index = 8 #will always be row 8 in aquatroll, which is very handy indead!
+    header_row_index = 25 #will always be row 8 in aquatroll, which is very handy indead!
     
 
 
@@ -57,13 +57,29 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
     do_index = None
     spc_index = None
     charfu_index = None
+    press_index = None
+    
+    index = 0
+    
+    for i in columns:
+        if i == 'Datetime_(UTC)':
+            index +=1
+            continue
+        columns[index] = i[:-10]
+        #print (i)
+        index +=1
+        #need regex to find (#######) then remove from the string...
+        
+        
     for idx, i in enumerate(columns):
         if "% Saturation" in i:
             do_index=idx
         if "Specific Conductivity" in i:
             spc_index = idx
-        if "Chl-a Fluorescence" in i:
+        if "Chlorophyll-a Fluorescence" in i:
             charfu_index = idx
+        if "Barometric Pressure" in i:
+            press_index = idx
 
     if do_index is not None:
         columns[do_index] = "water_DO_%"
@@ -71,9 +87,12 @@ def read_insitu(aquatroll_file, tzinfo=None ,delim=None):
         columns[spc_index] = "SpCond uS/cm"
     if charfu_index is not None:
         columns[charfu_index] = "Chlorophyll RFU"
+    if press_index is not None:
+        columns[press_index] = "pressure mmhg"
 
     DF.columns = columns
 
+    #print(columns)
     DF = match_param(DF,DEFINITIONS)
     aquatroll_file.close()
     return metadata, DF
