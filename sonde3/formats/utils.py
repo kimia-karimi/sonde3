@@ -19,12 +19,12 @@ def match_param(DF,DEFINITIONS):
         else:
             col = list(col)
 
-        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0])]
+        submatch = DEFINITIONS[DEFINITIONS['parameter'].str.contains(col[0], regex=False, case=False, na=False)]
 
         if len(col) > 2:
             #print ("col length > 2")
             #print (col, "our submatch: ", submatch)
-            match = submatch[submatch['unit'].str.contains(col[2])]
+            match = submatch[submatch['unit'].str.contains(col[2], regex=False, case=False, na=False)]
             #print ("our match: ", match)
             if not match.empty:
                 col = (str(match.iloc[0]['standard']))
