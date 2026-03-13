@@ -64,3 +64,5 @@ TAL,�g/L,water_bga_pe
 TAL,ug/L,water_bga_pe
 Chlorophyll,RFU,chlorophyll_a_rfu
 Chlorophyll,�g/L,chlorophyll_a
+RDO,%Sat,water_DO_%
+RDO Conc,mg/L,water_DO_mgl
