@@ -142,11 +142,11 @@ def calculate_salinity_psu(df):
     """
     Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package
     """
-    if ('water_temp_C' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
-
-        if ('water_salinity_PSU' in df.columns):
-            df.drop(['water_salinity_PSU'], axis=1, inplace=True)
-        df['water_salinity_PSU'] = df.apply(_calculate_salinity_psu,axis=1)
+    if not ('water_salinity_PSU' in df.columns):
+        if ('water_temp_C' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
+            #if ('water_salinity_PSU' in df.columns):
+                #df.drop(['water_salinity_PSU'], axis=1, inplace=True)
+            df['water_salinity_PSU'] = df.apply(_calculate_salinity_psu,axis=1)
 
     return df
 
