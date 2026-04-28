@@ -140,7 +140,7 @@ def calculate_conductance(df):
 
 def calculate_salinity_psu(df):
     """
-    Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package
+    Calculate salinity PSU using UNESCO 1981 and UNESCO 1983 (EOS-80) via `seawater` package if the field is missing. 
     """
     if not ('water_salinity_PSU' in df.columns):
         if ('water_temp_C' in df.columns) and ('water_conductivity_mS/cm' in df.columns) and ('water_depth_m_nonvented' in df.columns):
@@ -168,12 +168,13 @@ def _scale_spconductivity_us(row):
 
 def calculate_do_mgl(df):
     """
-    Calculate dissolved oxygen concentration in mg/L using Weiss's equation (1970).
+    Calculate dissolved oxygen concentration in mg/L using Weiss's equation (1970), if the field data is missing.
 
     Weiss, R. (1970). "The solubility of nitrogen, oxygen, and argon in water and seawater".
     """
-    if ('water_DO_%' in df.columns) and ('water_salinity_PSU' in df.columns) and ('water_temp_C' in df.columns):
-        df['water_DO_mgl'] = df.apply(_calculate_do_mgl,axis=1)
+    if not (water_DO_mgl in df.columns):
+        if ('water_DO_%' in df.columns) and ('water_salinity_PSU' in df.columns) and ('water_temp_C' in df.columns):
+            df['water_DO_mgl'] = df.apply(_calculate_do_mgl,axis=1)
     return df
 
 
